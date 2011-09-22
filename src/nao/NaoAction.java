@@ -16,8 +16,8 @@ public class NaoAction extends ActionArray {
   /**
 	 * 
 	 */
-	private static final long serialVersionUID = 3108227084133068803L;
-final static String JointName = "jointVals";
+  private static final long serialVersionUID = 3108227084133068803L;
+  final static String JointName = "jointVals";
   final static String MaxVelName = "maxvel";
   final static String StiffName = "stiffVals";
   final static String LedName = "ledVals";
@@ -30,8 +30,8 @@ final static String JointName = "jointVals";
       "RHand" };
   final public static String stiffJointNames[] = { "Stiff-HeadYaw", "Stiff-HeadPitch", "Stiff-LShoulderPitch",
       "Stiff-LShoulderRoll", "Stiff-LElbowYaw", "Stiff-LElbowRoll", "Stiff-LWristYaw", "Stiff-LHand",
-      "Stiff-RShoulderPitch", "Stiff-RShoulderRoll",
-      "Stiff-RElbowYaw", "Stiff-RElbowRoll", "Stiff-RWristYaw", "Stiff-RHand" };
+      "Stiff-RShoulderPitch", "Stiff-RShoulderRoll", "Stiff-RElbowYaw", "Stiff-RElbowRoll", "Stiff-RWristYaw",
+      "Stiff-RHand" };
   final public static String ledNames[] = { "ChestBoard/Blue", "ChestBoard/Green", "ChestBoard/Red", "Ears/Left/0Deg",
       "Ears/Left/108Deg", "Ears/Left/144Deg", "Ears/Left/180Deg", "Ears/Left/216Deg", "Ears/Left/252Deg",
       "Ears/Left/288Deg", "Ears/Left/324Deg", "Ears/Left/36Deg", "Ears/Left/72Deg", "Ears/Right/0Deg",
@@ -61,14 +61,11 @@ final static String JointName = "jointVals";
   // 3
   public static final int numSound = soundNames.length;
 
-  final static private DropData[] actionDescriptor = {
-      new DropByteArray(ModeName, 4),
-      new DropArray(new DropFloat(""), JointName, -1, jointNames),
-      new DropFloat(MaxVelName),
+  final static private DropData[] actionDescriptor = { new DropByteArray(ModeName, 4),
+      new DropArray(new DropFloat(""), JointName, -1, jointNames), new DropFloat(MaxVelName),
       new DropArray(new DropFloat(""), StiffName, -1, stiffJointNames),
       new DropArray(new DropFloat(""), LedName, -1, ledNames),
-      new DropArray(new DropFloat(""), SoundName, -1, soundNames)
-  };
+      new DropArray(new DropFloat(""), SoundName, -1, soundNames) };
 
 
   public final static int actionSize = numJoints + 1 + numLed + numSound;
@@ -142,19 +139,17 @@ final static String JointName = "jointVals";
         this.stiffness[i] = stiffness[i];
       }
       this.maxvel = maxvel;
-      this.jointMode = true;
+      jointMode = true;
     }
     if (leds != null) {
-      this.ledMode = true;
-      for (int i = 0; i < numLed; i++) {
+      ledMode = true;
+      for (int i = 0; i < numLed; i++)
         this.leds[i] = leds[i];
-      }
     }
     if (sounds != null) {
-      this.soundMode = true;
-      for (int i = 0; i < numSound; i++) {
+      soundMode = true;
+      for (int i = 0; i < numSound; i++)
         this.sounds[i] = sounds[i];
-      }
     }
     setValues();
   }

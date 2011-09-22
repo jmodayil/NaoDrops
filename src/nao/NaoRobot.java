@@ -27,31 +27,27 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   private static final int NaoControlPort = 6321;
 
   final static public String[] sensorNames = { "Battery-Charge", "Battery-Current", "Battery-Temperature",
-      "Battery-Temperature", "ChestBoard-Button", "Head-Touch-Front", "Head-Touch-Middle",
-      "Head-Touch-Rear", "HeadPitch-ElectricCurrent", "HeadPitch-Position", "HeadPitch-Temperature",
-      "HeadYaw-ElectricCurrent", "HeadYaw-Position", "HeadYaw-Temperature", "InertialSensor-AccX",
-      "InertialSensor-AccY", "InertialSensor-AccZ", "InertialSensor-AngleX", "InertialSensor-AngleY",
-      "InertialSensor-GyrRef", "InertialSensor-GyrX", "InertialSensor-GyrY",
-      "LElbowRoll-ElectricCurrent", "LElbowRoll-Position", "LElbowRoll-Temperature",
-      "LElbowYaw-ElectricCurrent", "LElbowYaw-Position", "LElbowYaw-Temperature",
-      "LHand-ElectricCurrent", "LHand-Position", "LHand-Temperature", "LHand-Touch-Back",
-      "LHand-Touch-Left", "LHand-Touch-Right", "LShoulderPitch-ElectricCurrent",
-      "LShoulderPitch-Position", "LShoulderPitch-Temperature", "LShoulderRoll-ElectricCurrent",
-      "LShoulderRoll-Position", "LShoulderRoll-Temperature", "LWristYaw-ElectricCurrent",
-      "LWristYaw-Position", "LWristYaw-Temperature", "RElbowRoll-ElectricCurrent", "RElbowRoll-Position",
-      "RElbowRoll-Temperature", "RElbowYaw-ElectricCurrent", "RElbowYaw-Position",
-      "RElbowYaw-Temperature", "RHand-ElectricCurrent", "RHand-Position", "RHand-Temperature",
-      "RHand-Touch-Back", "RHand-Touch-Left", "RHand-Touch-Right", "RShoulderPitch-ElectricCurrent",
-      "RShoulderPitch-Position", "RShoulderPitch-Temperature", "RShoulderRoll-ElectricCurrent",
-      "RShoulderRoll-Position", "RShoulderRoll-Temperature", "RWristYaw-ElectricCurrent",
-      "RWristYaw-Position", "RWristYaw-Temperature", "US-Left", "US-Right", "US" };
+      "Battery-Temperature", "ChestBoard-Button", "Head-Touch-Front", "Head-Touch-Middle", "Head-Touch-Rear",
+      "HeadPitch-ElectricCurrent", "HeadPitch-Position", "HeadPitch-Temperature", "HeadYaw-ElectricCurrent",
+      "HeadYaw-Position", "HeadYaw-Temperature", "InertialSensor-AccX", "InertialSensor-AccY", "InertialSensor-AccZ",
+      "InertialSensor-AngleX", "InertialSensor-AngleY", "InertialSensor-GyrRef", "InertialSensor-GyrX",
+      "InertialSensor-GyrY", "LElbowRoll-ElectricCurrent", "LElbowRoll-Position", "LElbowRoll-Temperature",
+      "LElbowYaw-ElectricCurrent", "LElbowYaw-Position", "LElbowYaw-Temperature", "LHand-ElectricCurrent",
+      "LHand-Position", "LHand-Temperature", "LHand-Touch-Back", "LHand-Touch-Left", "LHand-Touch-Right",
+      "LShoulderPitch-ElectricCurrent", "LShoulderPitch-Position", "LShoulderPitch-Temperature",
+      "LShoulderRoll-ElectricCurrent", "LShoulderRoll-Position", "LShoulderRoll-Temperature",
+      "LWristYaw-ElectricCurrent", "LWristYaw-Position", "LWristYaw-Temperature", "RElbowRoll-ElectricCurrent",
+      "RElbowRoll-Position", "RElbowRoll-Temperature", "RElbowYaw-ElectricCurrent", "RElbowYaw-Position",
+      "RElbowYaw-Temperature", "RHand-ElectricCurrent", "RHand-Position", "RHand-Temperature", "RHand-Touch-Back",
+      "RHand-Touch-Left", "RHand-Touch-Right", "RShoulderPitch-ElectricCurrent", "RShoulderPitch-Position",
+      "RShoulderPitch-Temperature", "RShoulderRoll-ElectricCurrent", "RShoulderRoll-Position",
+      "RShoulderRoll-Temperature", "RWristYaw-ElectricCurrent", "RWristYaw-Position", "RWristYaw-Temperature",
+      "US-Left", "US-Right", "US" };
 
   // numSensors=67
   final static private DropData[] observationDescriptor = {
       new DropArray(new DropFloat(""), "sensors", -1, sensorNames),
-      new DropArray(new DropShortSigned(""), "sound", 8000),
-      new DropNaoImage("image", 320, 240)
-  };
+      new DropArray(new DropShortSigned(""), "sound", 8000), new DropNaoImage("image", 320, 240) };
 
 
   private static final Drop sensorDrop = new Drop("NaoState", observationDescriptor);
@@ -81,7 +77,6 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     naoConnection = (NaoConnection) receiver();
   }
 
-  
 
   @Override
   public ObservationVersatile[] waitNewRawObs() {
@@ -145,15 +140,14 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     String[] actLabels = NaoAction.getNames();
     for (int i = 0; i < actLabels.length; i++) {
       final int obsIndex = i;
-      monitor.add(actLabels[i], 0,
-                  new Monitored() {
-                    @Override
-                    public double monitoredValue() {
-                      if (agentAction == null)
-                        return -1;
-                      return agentAction.getValue(obsIndex);
-                    }
-                  });
+      monitor.add(actLabels[i], 0, new Monitored() {
+        @Override
+        public double monitoredValue() {
+          if (agentAction == null)
+            return -1;
+          return agentAction.getValue(obsIndex);
+        }
+      });
     }
 
     /*
@@ -186,10 +180,10 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     sendAction((NaoAction) a);
   }
 
-@Override
-public void run(Clock clock, Agent agent) {
-	throw new NotImplemented();
-}
+  @Override
+  public void run(Clock clock, Agent agent) {
+    throw new NotImplemented();
+  }
 
 
 }

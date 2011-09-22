@@ -28,12 +28,12 @@ public class NaoTestZephyr implements Runnable {
 
   @Override
   public void run() {
-     while (clock.tick()) {
-     double[] obs = environment.waitNewObs();
-     NaoAction act = runner.getAtp1(obs);
-     environment.sendAction(act);
-     }
-    //environment.run(runner);
+    while (clock.tick()) {
+      double[] obs = environment.waitNewObs();
+      NaoAction act = runner.getAtp1(obs);
+      environment.sendAction(act);
+    }
+    // environment.run(runner);
     // while (clock.tick())
     // watchable++;
   }

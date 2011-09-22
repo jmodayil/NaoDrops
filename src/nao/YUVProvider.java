@@ -13,7 +13,7 @@ public class YUVProvider implements ImageProvider {
   public YUVProvider(int width, int height) {
     this.width = width;
     this.height = height;
-    this.ARGBpixels = new int[this.width * this.height];
+    ARGBpixels = new int[this.width * this.height];
 
   }
 
@@ -49,11 +49,11 @@ public class YUVProvider implements ImageProvider {
 
   @Override
   public BufferedImage image() {
-    System.out.println("imaged: " + this.width + " " + this.height);
-    BufferedImage im = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_ARGB);
-    int startX = 0, startY = 0, w = this.width, h = this.height, offset = 0, scansize = width;
+    System.out.println("imaged: " + width + " " + height);
+    BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    int startX = 0, startY = 0, w = width, h = height, offset = 0, scansize = width;
     // fill the buffer in YUV mode.
-    im.setRGB(startX, startY, w, h, this.ARGBpixels, offset, scansize);
+    im.setRGB(startX, startY, w, h, ARGBpixels, offset, scansize);
     return im;
   }
 
