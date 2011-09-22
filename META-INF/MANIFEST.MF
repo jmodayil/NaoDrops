@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NaoDrops
+Bundle-SymbolicName: NaoDrops
+Bundle-Version: 1.0.0.qualifier
+Export-Package: nao
+Require-Bundle: rlpark.plugin.rltoys;bundle-version="1.0.0",
+ rlpark.plugin.robot;bundle-version="1.0.0",
+ zephyr.plugin.core.api;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
