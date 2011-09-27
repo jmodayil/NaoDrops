@@ -9,7 +9,6 @@ import rlpark.plugin.robot.disco.drops.Drop;
 import rlpark.plugin.robot.disco.drops.DropArray;
 import rlpark.plugin.robot.disco.drops.DropData;
 import rlpark.plugin.robot.disco.drops.DropFloat;
-import rlpark.plugin.robot.disco.drops.DropShortSigned;
 import rlpark.plugin.robot.sync.ObservationReceiver;
 import rlpark.plugin.robot.sync.ObservationVersatile;
 import rltoys.algorithms.representations.actions.Action;
@@ -47,8 +46,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   // numSensors=67
   final static private DropData[] observationDescriptor = {
       new DropArray(new DropFloat(""), "sensors", -1, sensorNames),
-      new DropArray(new DropShortSigned(""), "sound", 8000), new DropNaoImage("image", 320, 240) };
-
+      new DropArray(new DropFloat(""), "soundFeatures", 1000), new DropNaoImage("image", 320, 240) };
 
   private static final Drop sensorDrop = new Drop("NaoState", observationDescriptor);
   private final NaoConnection naoConnection;
@@ -64,7 +62,12 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
 
   public NaoRobot() {
-    this(new NaoConnection("gremlin2", NaoControlPort, sensorDrop));
+    this(new NaoConnection("gremlin2", NaoControlPort, sensorDrop)); // CD: is
+                                                                     // NaoConnection
+                                                                     // of type
+                                                                     // ObervationReceiver?
+                                                                     // --> yes,
+                                                                     // descendant!
     bufferSize = 320 * 240 * 2;
     buffer = new LiteByteBuffer(bufferSize);
 
@@ -118,13 +121,11 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
 
   @Override
-  public void addToMonitor(DataMonitor monitor) {
+  public void addToMonitor(DataMonitor monitor) { // CD: output to zephyr
 
     // observations
     List<String> labelsToLog = legend().getLabels();
     for (String label : labelsToLog) {
-      if (label.startsWith("sound")) // ignore sound for now.
-        continue;
       final int obsIndex = legend().indexOf(label);
       monitor.add(label, 0, new Monitored() {
         @Override

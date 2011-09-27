@@ -9,6 +9,7 @@ import zephyr.plugin.core.api.synchronization.Clock;
 @Monitor
 public class NaoTestZephyr implements Runnable {
   private final NaoRobot environment = new NaoRobot();// CritterbotEnvironments.createRobotEnvironment();
+  @Monitor
   NaoTest runner;
   private final Clock clock = new Clock();
   @Monitor
@@ -23,16 +24,18 @@ public class NaoTestZephyr implements Runnable {
       e.printStackTrace();
       runner = null;
     }
-    Zephyr.advertise(clock, this);
+    Zephyr.advertise(clock, this); // zephyr is told when clock.tick() is
+                                   // invoked
   }
 
   @Override
   public void run() {
-    while (clock.tick()) {
-      double[] obs = environment.waitNewObs();
-      NaoAction act = runner.getAtp1(obs);
-      environment.sendAction(act);
-    }
+    runner.run(clock);
+    // while (clock.tick()) {
+    // double[] obs = environment.waitNewObs();
+    // NaoAction act = runner.getAtp1(obs);
+    // environment.sendAction(act);
+    // }
     // environment.run(runner);
     // while (clock.tick())
     // watchable++;

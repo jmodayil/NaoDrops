@@ -65,16 +65,19 @@ public class NaoTest {
   }
 
   public void run(Clock clock) {
-    double[] obsArray = R.waitNewObs();
+    double[] obsArray = R.waitNewObs(); // CD: R is the NaoRobot instance
+
+
     // TStep currentStep = new TStep(naoConnection.lastObservationDropTime(),
     // (double[]) null, null, obsArray);
     while (!R.isClosed() && !clock.isTerminated()) {
-      clock.tick();
+      clock.tick(); // observes all variables for zephyr plot function
       NaoAction action = getAtp1(obsArray);
       R.sendAction(action);
       if (action == null)
         break;
       obsArray = R.waitNewObs();
+      System.out.println(obsArray.length);
       // TStep lastStep = currentStep;
       // long time = naoConnection.lastObservationDropTime();
       // currentStep = new TStep(time, lastStep, action, obsArray);
