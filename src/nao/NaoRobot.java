@@ -46,7 +46,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   // numSensors=67
   final static private DropData[] observationDescriptor = {
       new DropArray(new DropFloat(""), "sensors", -1, sensorNames),
-      new DropArray(new DropFloat(""), "soundFeatures", 1000), new DropNaoImage("image", 320, 240) };
+      new DropArray(new DropFloat(""), "soundFeatures", 6144), new DropNaoImage("image", 320, 240) };
 
   private static final Drop sensorDrop = new Drop("NaoState", observationDescriptor);
   private final NaoConnection naoConnection;

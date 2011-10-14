@@ -5,7 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
+import rltoys.algorithms.learning.control.sarsa.Sarsa;
+import rltoys.algorithms.learning.control.sarsa.SarsaControl;
+import rltoys.algorithms.representations.acting.Policy;
+import rltoys.algorithms.representations.actions.Action;
+import rltoys.algorithms.representations.actions.TabularAction;
+import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;
+import rltoys.algorithms.representations.traces.AMaxTraces;
+import rltoys.environments.envio.actions.ActionArray;
+import rltoys.environments.envio.observations.TRStep;
 import rltoys.environments.envio.observations.TStep;
+import rltoys.math.vector.BinaryVector;
+import rltoys.math.vector.RealVector;
 import zephyr.plugin.core.api.monitoring.fileloggers.TimedFileLogger;
 import zephyr.plugin.core.api.synchronization.Clock;
 
@@ -65,25 +77,41 @@ public class NaoTest {
   }
 
   public void run(Clock clock) {
-    double[] obsArray = R.waitNewObs(); // CD: R is the NaoRobot instance
+    // Initialise Problem
+    SoundEnergyProblem problem = new SoundEnergyProblem(this.R);
+    // Initialise tilecoder
+    TileCodersNoHashing tileCoders = new TileCodersNoHashing(problem.getObservationRanges());
+    // Add desired amount of tilings:
+    tileCoders.addFullTilings(5, 3);
+    // Don't know yet what this means...
+    TabularAction toStateAction = new TabularAction(problem.actions(), tileCoders.vectorSize());
+    // Set parameters for Sarsa
+    double alpha = .2 / tileCoders.nbActive();
+    double gamma = 0.99;
+    double lambda = .3;
+    // Initialize Sarsa Algorithm:
+    Sarsa sarsa = new Sarsa(alpha, gamma, lambda, toStateAction.actionStateFeatureSize(), new AMaxTraces());
+    double epsilon = 0.01;
+    // Use epsilon-greedy policy:
+    Policy acting = new EpsilonGreedy(new Random(0), problem.actions(), toStateAction, sarsa, epsilon);
+    // Initialize the sarsa control algorithm:
+    SarsaControl control = new SarsaControl(acting, toStateAction, sarsa);
 
 
-    // TStep currentStep = new TStep(naoConnection.lastObservationDropTime(),
-    // (double[]) null, null, obsArray);
+    TRStep step = problem.initialize();
+    Action action = new ActionArray(0.0, 0.0, 0.0);
+    RealVector x_t = null;
     while (!R.isClosed() && !clock.isTerminated()) {
-      clock.tick(); // observes all variables for zephyr plot function
-      NaoAction action = getAtp1(obsArray);
-      R.sendAction(action);
-      if (action == null)
-        break;
-      obsArray = R.waitNewObs();
-      System.out.println(obsArray.length);
-      // TStep lastStep = currentStep;
-      // long time = naoConnection.lastObservationDropTime();
-      // currentStep = new TStep(time, lastStep, action, obsArray);
-    }
-  }
+      clock.tick(); // CD: observes all variables for zephyr plot function
 
+      step = problem.step(action);
+      BinaryVector x_tp1 = tileCoders.project(step.o_tp1);
+      action = control.step(x_t, step.a_t, x_tp1, step.r_tp1);
+      x_t = x_tp1;
+    }
+
+
+  }
 
   public NaoAction wgetAtp1(TStep step) {
     // TODO Auto-generated method stub
@@ -119,8 +147,8 @@ public class NaoTest {
     return na;
   }
 
-
   public NaoAction getAtp1(double[] obs) {
+    // Performs random action corresponding to current observation and stage...
     int end = 500;
     stage++;
     if (stage < 100) { // gradually stiffen the body to midpoint
@@ -169,6 +197,5 @@ public class NaoTest {
 
     return na;
   }
-
 
 }
