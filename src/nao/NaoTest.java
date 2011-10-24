@@ -87,7 +87,7 @@ public class NaoTest {
     TabularAction toStateAction = new TabularAction(problem.actions(), tileCoders.vectorSize());
     // Set parameters for Sarsa
     double alpha = .2 / tileCoders.nbActive();
-    double gamma = 0.99;
+    double gamma = 0.0;
     double lambda = .3;
     // Initialize Sarsa Algorithm:
     Sarsa sarsa = new Sarsa(alpha, gamma, lambda, toStateAction.actionStateFeatureSize(), new AMaxTraces());

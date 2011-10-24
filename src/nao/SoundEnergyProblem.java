@@ -17,10 +17,10 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
   protected static final Action[] Actions = { REDLED, GREENLED, BLUELED };
 
 
-  private final double[] leds = new double[83];
+  private double[] leds = new double[83];
   private final NaoRobot robot;
   private final NaoAction naoAct = new NaoAction();
-  protected static final Range soundEnergyRange = new Range(0.0, 32000.0);
+  protected static final Range soundEnergyRange = new Range(60.0, 500.0);
   protected double soundEnergy = 0;
 
   private final double LOWERBORDER;
@@ -70,26 +70,32 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
     // Calculate the current reward for the action that was taken LAST time:
     System.out.println(soundEnergy);
     if (soundEnergy < LOWERBORDER) {
-      System.out.println("LOW SOUND!");
       if (leds[0] > 0.9) {
         reward = 1.0;
       } else {
         reward = -10.0;
       }
+      System.out.println("LOW SOUND!");
     } else if (soundEnergy < UPPERBORDER) {
-      System.out.println("MEDIUM SOUND!");
       if (leds[1] > 0.9) {
         reward = 1.0;
       } else {
         reward = -10.0;
       }
+      System.out.println("MEDIUM SOUND!");
     } else {
-      System.out.println("HIGH SOUND!");
       if (leds[2] > 0.9) {
         reward = 1.0;
       } else {
         reward = -10.0;
       }
+      System.out.println("HIGH SOUND!");
+    }
+
+    if (reward < 0) {
+      leds = NaoAction.setFaceLeds(2);
+    } else {
+      leds = NaoAction.setFaceLeds(1);
     }
 
 
