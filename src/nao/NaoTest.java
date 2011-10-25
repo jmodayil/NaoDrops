@@ -90,7 +90,10 @@ public class NaoTest {
     double gamma = 0.0;
     double lambda = .3;
     // Initialize Sarsa Algorithm:
-    Sarsa sarsa = new Sarsa(alpha, gamma, lambda, toStateAction.actionStateFeatureSize(), new AMaxTraces());
+    Sarsa sarsa = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize(), new AMaxTraces()); // Hope
+                                                                                                 // vectorsize
+                                                                                                 // is
+                                                                                                 // correct!
     double epsilon = 0.01;
     // Use epsilon-greedy policy:
     Policy acting = new EpsilonGreedy(new Random(0), problem.actions(), toStateAction, sarsa, epsilon);

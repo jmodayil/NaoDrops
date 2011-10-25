@@ -3,7 +3,6 @@ package nao;
 import java.util.List;
 
 import rlpark.plugin.robot.RobotEnvironment;
-import rlpark.plugin.robot.Robots;
 import rlpark.plugin.robot.disco.datatype.LiteByteBuffer;
 import rlpark.plugin.robot.disco.drops.Drop;
 import rlpark.plugin.robot.disco.drops.DropArray;
@@ -11,6 +10,7 @@ import rlpark.plugin.robot.disco.drops.DropData;
 import rlpark.plugin.robot.disco.drops.DropFloat;
 import rlpark.plugin.robot.sync.ObservationReceiver;
 import rlpark.plugin.robot.sync.ObservationVersatile;
+import rlpark.plugin.robot.sync.ObservationVersatileArray;
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.environments.envio.Agent;
 import rltoys.environments.envio.observations.Legend;
@@ -82,21 +82,21 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
 
   @Override
-  public ObservationVersatile[] waitNewRawObs() {
-    ObservationVersatile[] result = super.waitNewRawObs();
+  public ObservationVersatileArray waitNewRawObs() {
+    ObservationVersatileArray result = super.waitNewRawObs();
     updateImage(result);
     return result;
   }
 
   @Override
-  public ObservationVersatile[] newRawObsNow() {
-    ObservationVersatile[] result = super.newRawObsNow();
+  public ObservationVersatileArray newRawObsNow() {
+    ObservationVersatileArray result = super.newRawObsNow();
     updateImage(result);
     return result;
   }
 
-  private void updateImage(ObservationVersatile[] result) {
-    ObservationVersatile lastObs = Robots.last(result);
+  private void updateImage(ObservationVersatileArray result) {
+    ObservationVersatile lastObs = result.last();
     if (lastObs == null)
       return;
     DropNaoImage imageDataDrop = (DropNaoImage) sensorDrop.drop("image");
