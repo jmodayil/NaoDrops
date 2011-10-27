@@ -17,7 +17,7 @@ public class NaoTestZephyr implements Runnable {
 
   // rlpark.plugin.video ImageProvider
   public NaoTestZephyr() {
-
+    System.out.println("Initializing the Runnable class...");
     try {
       runner = new NaoTest(environment, clock);
     } catch (IOException e) {
@@ -30,6 +30,7 @@ public class NaoTestZephyr implements Runnable {
 
   @Override
   public void run() {
+    System.out.println("Calling the run() method of NaoTestZephyr class");
     runner.run(clock);
     // while (clock.tick()) {
     // double[] obs = environment.waitNewObs();

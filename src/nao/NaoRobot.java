@@ -56,22 +56,27 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   @Monitor
   private YUVProvider yuv;
 
+  @Monitor
+  private CenterImage centerImage;
+
   private int bufferSize;
 
   private LiteByteBuffer buffer;
 
 
   public NaoRobot() {
-    this(new NaoConnection("gremlin2", NaoControlPort, sensorDrop)); // CD: is
-                                                                     // NaoConnection
-                                                                     // of type
-                                                                     // ObervationReceiver?
-                                                                     // --> yes,
-                                                                     // descendant!
+    this(new NaoConnection("localhost", NaoControlPort, sensorDrop)); // CD: is
+                                                                      // NaoConnection
+                                                                      // of type
+                                                                      // ObervationReceiver?
+                                                                      // -->
+                                                                      // yes,
+                                                                      // descendant!
     bufferSize = 320 * 240 * 2;
     buffer = new LiteByteBuffer(bufferSize);
 
     yuv = new YUVProvider(320, 240);
+    centerImage = new CenterImage(yuv);
   }
 
   public NaoRobot(ObservationReceiver receiver) {
@@ -102,6 +107,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     DropNaoImage imageDataDrop = (DropNaoImage) sensorDrop.drop("image");
     imageDataDrop.extractImageData(lastObs.rawData(), buffer.array());
     yuv.stash(buffer.array());
+    centerImage.update();
   }
 
   public void sendAction(NaoAction action) {

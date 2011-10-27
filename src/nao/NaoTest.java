@@ -48,6 +48,7 @@ public class NaoTest {
 
 
   public NaoTest(NaoRobot R, Clock clock) throws IOException {
+    System.out.print("Initializing the Robot Interface...\n");
     na = new NaoAction();
     this.clock = clock;
     na.set(null, .1, null, null, null);
