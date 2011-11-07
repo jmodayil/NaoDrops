@@ -1,6 +1,9 @@
 package nao;
 
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorConvertOp;
 
 import zephyr.plugin.core.api.video.ImageProvider;
 
@@ -50,11 +53,13 @@ public class YUVProvider implements ImageProvider {
   @Override
   public BufferedImage image() {
     System.out.println("imaged: " + width + " " + height);
-    BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
     int startX = 0, startY = 0, w = width, h = height, offset = 0, scansize = width;
     // fill the buffer in YUV mode.
     im.setRGB(startX, startY, w, h, ARGBpixels, offset, scansize);
-    return im;
+
+    BufferedImageOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+    return op.filter(im, null);
   }
 
 
