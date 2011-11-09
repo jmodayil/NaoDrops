@@ -110,6 +110,10 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     centerImage.update();
   }
 
+  public double getMotion() {
+    return centerImage.getMotion();
+  }
+
   public void sendAction(NaoAction action) {
     agentAction = action;
 

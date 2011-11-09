@@ -12,20 +12,21 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class CenterImage implements ImageProvider {
   YUVProvider bigImage;
   BufferedImage centerImage;
+  double motionValue;
 
   private static final int DEPTH = opencv_core.IPL_DEPTH_8U;
 
   @Monitor
-  MotionMeasure motion = new MotionMeasure(.99, 32, 24, DEPTH, 1);
+  MotionMeasure motion = new MotionMeasure(.95, 128, 96, DEPTH, 1);
 
   public CenterImage(YUVProvider bigImage) {
     this.bigImage = bigImage;
   }
 
   public void update() {
-    centerImage = bigImage.image().getSubimage(144, 108, 32, 24);
+    centerImage = bigImage.image().getSubimage(108, 72, 128, 96);
     IplImage image = IplImage.createFrom(centerImage);
-    motion.update(image);
+    motionValue = motion.update(image);
   }
 
   @Override
@@ -37,5 +38,9 @@ public class CenterImage implements ImageProvider {
     IplImage image = new IplImage();
     image.copyFrom(centerImage);
     return image;
+  }
+
+  public double getMotion() {
+    return motionValue;
   }
 }

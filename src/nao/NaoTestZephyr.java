@@ -8,9 +8,9 @@ import zephyr.plugin.core.api.synchronization.Clock;
 
 @Monitor
 public class NaoTestZephyr implements Runnable {
-  private final NaoRobot environment = new NaoRobot();// CritterbotEnvironments.createRobotEnvironment();
+  private final NaoRobot robot = new NaoRobot();
   @Monitor
-  NaoTest runner;
+  NaoTestObamaMerkel runner;
   private final Clock clock = new Clock();
   @Monitor
   int watchable = 1;
@@ -19,7 +19,7 @@ public class NaoTestZephyr implements Runnable {
   public NaoTestZephyr() {
     System.out.println("Initializing the Runnable class...");
     try {
-      runner = new NaoTest(environment, clock);
+      runner = new NaoTestObamaMerkel(robot, clock);
     } catch (IOException e) {
       e.printStackTrace();
       runner = null;

@@ -8,8 +8,9 @@ import rltoys.environments.envio.problems.ProblemBounded;
 import rltoys.environments.envio.problems.ProblemDiscreteAction;
 import rltoys.math.ranges.Range;
 import rltoys.math.vector.implementations.PVector;
+import zephyr.plugin.core.api.monitoring.annotations.Monitor;
 
-
+@Monitor
 public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction {
   protected static final ActionArray REDLED = new ActionArray(0.0, 0.0, 1.0);
   protected static final ActionArray GREENLED = new ActionArray(0.0, 1.0, 0.0);
@@ -21,6 +22,7 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
   private final NaoRobot robot;
   private final NaoAction naoAct = new NaoAction();
   protected static final Range soundEnergyRange = new Range(60.0, 500.0);
+
   protected double soundEnergy = 0;
 
   private final double LOWERBORDER;
@@ -117,6 +119,7 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
     TRStep tstep;
     tstep = new TRStep(lastTStep, action, new double[] { soundEnergy }, reward);
     lastTStep = tstep;
+    System.out.print("Current step: " + tstep.time + "\n");
     return tstep;
   }
 

@@ -47,12 +47,12 @@ public class YUVProvider implements ImageProvider {
       b = charbound(1.164 * y + 1.596 * u);
       ARGBpixels[i + 1] = 256 * 256 * 256 * 255 + 256 * 256 * r + 256 * g + b;
     }
-    System.out.println("Stash");
+    // System.out.println("Stash");
   }
 
   @Override
   public BufferedImage image() {
-    System.out.println("imaged: " + width + " " + height);
+    // System.out.println("imaged: " + width + " " + height);
     BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
     int startX = 0, startY = 0, w = width, h = height, offset = 0, scansize = width;
     // fill the buffer in YUV mode.
