@@ -27,7 +27,9 @@ public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction
   private double reward = 0.0;
 
   double motion = 0.0;
-  private double oldHeadPosition = 0.0;
+  double oldmotion = 0.0;
+  private double secondLastHeadPosition = 0.0;
+  private double lastHeadPosition = 0.0;
   private double newHeadPosition = 0.0;
   private final double motionBorder;
   private final double[] joints = new double[14];
@@ -62,10 +64,9 @@ public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction
     // get new Head Position:
     newHeadPosition = obsArray[12];
 
-
     // Calculate Reward:
-    System.out.print("is motion zero? value is... " + (newHeadPosition - oldHeadPosition) + "\n");
-    if (newHeadPosition - oldHeadPosition == 0) {
+    if (Math.abs(newHeadPosition - lastHeadPosition) < 0.001
+        && Math.abs(newHeadPosition - secondLastHeadPosition) < 0.001) {
       System.out.println("Motion is zero!");
       if (motion > motionBorder) {
         reward = 1.0;
@@ -73,7 +74,8 @@ public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction
     } else {
       reward = 0.0;
     }
-    oldHeadPosition = newHeadPosition;
+    secondLastHeadPosition = lastHeadPosition;
+    lastHeadPosition = newHeadPosition;
 
 
     // Light LEDs of Nao according to reward:
