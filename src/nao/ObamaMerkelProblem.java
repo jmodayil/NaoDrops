@@ -3,14 +3,11 @@ package nao;
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.environments.envio.observations.Legend;
-import rltoys.environments.envio.observations.TRStep;
-import rltoys.environments.envio.problems.ProblemBounded;
-import rltoys.environments.envio.problems.ProblemDiscreteAction;
-import rltoys.math.ranges.Range;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
+import zephyr.plugin.core.api.synchronization.Clock;
 
 @Monitor
-public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction {
+public class ObamaMerkelProblem {
   protected static final ActionArray LEFT = new ActionArray(-0.05);
   protected static final ActionArray RIGHT = new ActionArray(0.05);
   protected static final ActionArray REST = new ActionArray(0.0);
@@ -25,26 +22,31 @@ public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction
   double[] obsArray;
 
   private double reward = 0.0;
+  private double motionValue;
 
-  double motion = 0.0;
-  double oldmotion = 0.0;
+  double currentMotion = 0.0;
+  double lastMotion = 0.0;
+  double secondLastMotion = 0.0;
+  private final double headMotionThreshold = 0.001;
+  private final double cameraMotionThreshold = 0.01;
   private double secondLastHeadPosition = 0.0;
   private double lastHeadPosition = 0.0;
-  private double newHeadPosition = 0.0;
-  private final double motionBorder;
+  private double currentHeadPosition = 0.0;
+
   private final double[] joints = new double[14];
   private final double[] stiffness = new double[14];
   private Legend legend;
+  private final Clock clock;
 
   // private final PVector soundMagnitudes0 = new PVector(1024);
   // private final PVector soundMagnitudes1 = new PVector(1024);
 
 
-  public ObamaMerkelProblem(NaoRobot R, double motionBorder) {
+  public ObamaMerkelProblem(NaoRobot R, Clock clock) {
     this.robot = R;
     naoAct.set(joints, 0.1, stiffness, null, null);
     robot.sendAction(naoAct);
-    this.motionBorder = motionBorder;
+    this.clock = clock;
   }
 
   protected void update(ActionArray action) {
@@ -59,24 +61,29 @@ public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction
     // soundMagnitudes1.mapMultiplyToSelf(0.00001);
 
     // get new motion value:
-    motion = robot.getMotion();
+    secondLastMotion = lastMotion;
+    lastMotion = currentMotion;
+    currentMotion = robot.getMotion();
 
     // get new Head Position:
-    newHeadPosition = obsArray[12];
+    secondLastHeadPosition = lastHeadPosition;
+    lastHeadPosition = currentHeadPosition;
+    currentHeadPosition = obsArray[12];
+
+    motionValue = Math.abs(currentMotion - lastMotion) > Math.abs(currentMotion - secondLastMotion) ? Math
+        .abs(currentMotion - lastMotion) : Math.abs(currentMotion - secondLastMotion);
 
     // Calculate Reward:
-    if (Math.abs(newHeadPosition - lastHeadPosition) < 0.001
-        && Math.abs(newHeadPosition - secondLastHeadPosition) < 0.001) {
+    if (Math.abs(currentHeadPosition - lastHeadPosition) < 0.001
+        && Math.abs(currentHeadPosition - secondLastHeadPosition) < 0.001) {
       System.out.println("Motion is zero!");
-      if (motion > motionBorder) {
+      if ((Math.abs(currentMotion - lastMotion) > cameraMotionThreshold)
+          || (Math.abs(currentMotion - secondLastMotion) > cameraMotionThreshold)) {
         reward = 1.0;
       }
     } else {
       reward = 0.0;
     }
-    secondLastHeadPosition = lastHeadPosition;
-    lastHeadPosition = newHeadPosition;
-
 
     // Light LEDs of Nao according to reward:
     if (reward < 1.0) {
@@ -97,30 +104,17 @@ public class ObamaMerkelProblem implements ProblemBounded, ProblemDiscreteAction
     robot.sendAction(naoAct);
   }
 
-  @Override
+  public void run() {
+    System.out.println("Entering the run function...");
+    Action[] act = this.actions();
+
+    while (!clock.isTerminated()) {
+      clock.tick();
+      this.update((ActionArray) act[2]);
+    }
+  }
+
   public Action[] actions() {
     return Actions;
-  }
-
-  @Override
-  public Range[] getObservationRanges() {
-    return new Range[] {};
-  }
-
-  @Override
-  public Legend legend() {
-    return legend;
-  }
-
-  @Override
-  public TRStep initialize() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public TRStep step(Action action) {
-    // TODO Auto-generated method stub
-    return null;
   }
 }
