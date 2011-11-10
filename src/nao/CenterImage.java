@@ -17,7 +17,7 @@ public class CenterImage implements ImageProvider {
   private static final int DEPTH = opencv_core.IPL_DEPTH_8U;
 
   @Monitor
-  MotionMeasure motion = new MotionMeasure(.95, 128, 96, DEPTH, 1);
+  MotionMeasure motion = new MotionMeasure(.85, 128, 96, DEPTH, 1);
 
   public CenterImage(YUVProvider bigImage) {
     this.bigImage = bigImage;

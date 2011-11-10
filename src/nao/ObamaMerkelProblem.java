@@ -24,11 +24,9 @@ public class ObamaMerkelProblem {
   private double reward = 0.0;
   private double motionValue;
 
-  double currentMotion = 0.0;
-  double lastMotion = 0.0;
-  double secondLastMotion = 0.0;
-  private final double headMotionThreshold = 0.001;
-  private final double cameraMotionThreshold = 0.01;
+  double motion = 0.0;
+  private final double headMotionThreshold = 0.01;
+  private final double cameraMotionThreshold = 13.5;
   private double secondLastHeadPosition = 0.0;
   private double lastHeadPosition = 0.0;
   private double currentHeadPosition = 0.0;
@@ -61,27 +59,25 @@ public class ObamaMerkelProblem {
     // soundMagnitudes1.mapMultiplyToSelf(0.00001);
 
     // get new motion value:
-    secondLastMotion = lastMotion;
-    lastMotion = currentMotion;
-    currentMotion = robot.getMotion();
+    motion = robot.getMotion();
 
     // get new Head Position:
     secondLastHeadPosition = lastHeadPosition;
     lastHeadPosition = currentHeadPosition;
     currentHeadPosition = obsArray[12];
 
-    motionValue = Math.abs(currentMotion - lastMotion) > Math.abs(currentMotion - secondLastMotion) ? Math
-        .abs(currentMotion - lastMotion) : Math.abs(currentMotion - secondLastMotion);
 
     // Calculate Reward:
-    if (Math.abs(currentHeadPosition - lastHeadPosition) < 0.001
-        && Math.abs(currentHeadPosition - secondLastHeadPosition) < 0.001) {
-      System.out.println("Motion is zero!");
-      if ((Math.abs(currentMotion - lastMotion) > cameraMotionThreshold)
-          || (Math.abs(currentMotion - secondLastMotion) > cameraMotionThreshold)) {
+    if (Math.abs(currentHeadPosition - lastHeadPosition) < headMotionThreshold
+        && Math.abs(currentHeadPosition - secondLastHeadPosition) < headMotionThreshold) {
+      if (motion > cameraMotionThreshold) {
         reward = 1.0;
+        System.out.println("ZERO");
+      } else {
+        reward = 0.0;
       }
     } else {
+      System.out.println("Motion is NOT zero!");
       reward = 0.0;
     }
 
