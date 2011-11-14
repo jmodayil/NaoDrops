@@ -2,6 +2,7 @@ package nao;
 
 import java.util.List;
 
+
 import rlpark.plugin.robot.RobotEnvironment;
 import rlpark.plugin.robot.disco.datatype.LiteByteBuffer;
 import rlpark.plugin.robot.disco.drops.Drop;
@@ -61,7 +62,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
   private int bufferSize;
 
-  private LiteByteBuffer buffer;
+  public LiteByteBuffer argbBuffer;
 
 
   public NaoRobot() {
@@ -73,7 +74,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
                                                                       // yes,
                                                                       // descendant!
     bufferSize = 320 * 240 * 2;
-    buffer = new LiteByteBuffer(bufferSize);
+    argbBuffer = new LiteByteBuffer(bufferSize);
 
     yuv = new YUVProvider(320, 240);
     centerImage = new CenterImage(yuv);
@@ -105,8 +106,8 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     if (lastObs == null)
       return;
     DropNaoImage imageDataDrop = (DropNaoImage) sensorDrop.drop("image");
-    imageDataDrop.extractImageData(lastObs.rawData(), buffer.array());
-    yuv.stash(buffer.array());
+    imageDataDrop.extractImageData(lastObs.rawData(), argbBuffer.array());
+    yuv.stash(argbBuffer.array());
     centerImage.update();
   }
 

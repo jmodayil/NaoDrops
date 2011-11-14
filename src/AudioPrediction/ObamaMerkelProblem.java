@@ -1,11 +1,16 @@
-package nao;
+package AudioPrediction;
 
+<<<<<<< HEAD
 import java.util.Random;
 
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
 import rltoys.algorithms.learning.control.sarsa.Sarsa;
 import rltoys.algorithms.learning.control.sarsa.SarsaControl;
 import rltoys.algorithms.representations.acting.Policy;
+=======
+import nao.NaoAction;
+import nao.NaoRobot;
+>>>>>>> 7f8f29780bbb7055bcfbb48adbb89288b338552e
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.algorithms.representations.actions.TabularAction;
 import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;

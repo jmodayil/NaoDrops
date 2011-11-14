@@ -1,19 +1,19 @@
-package nao;
+package AudioPrediction;
 
-import AudioPrediction.ObamaMerkelProblem;
+import nao.NaoRobot;
 import zephyr.plugin.core.api.Zephyr;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
 import zephyr.plugin.core.api.synchronization.Clock;
 
 @Monitor
-public class NaoTestZephyr implements Runnable {
+public class AudioPredictionZephyr implements Runnable {
   @Monitor
   private final NaoRobot robot;
   @Monitor
   ObamaMerkelProblem runner;
   private final Clock clock = new Clock();
 
-  public NaoTestZephyr() {
+  public AudioPredictionZephyr() {
     System.out.println("Initializing the Runnable class...");
     robot = new NaoRobot();
     runner = new ObamaMerkelProblem(robot, clock);
