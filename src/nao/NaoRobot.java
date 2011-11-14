@@ -195,6 +195,4 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   public void run(Clock clock, Agent agent) {
     throw new NotImplemented();
   }
-
-
 }
