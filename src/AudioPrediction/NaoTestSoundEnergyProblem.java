@@ -1,9 +1,13 @@
-package nao;
+package AudioPrediction;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+
+import nao.NaoAction;
+import nao.NaoRobot;
+
 
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
 import rltoys.algorithms.learning.control.sarsa.Sarsa;

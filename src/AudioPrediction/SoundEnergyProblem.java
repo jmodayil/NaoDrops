@@ -1,5 +1,7 @@
-package nao;
+package AudioPrediction;
 
+import nao.NaoAction;
+import nao.NaoRobot;
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.environments.envio.observations.Legend;
