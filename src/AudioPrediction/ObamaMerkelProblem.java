@@ -4,7 +4,6 @@ import nao.NaoAction;
 import nao.NaoRobot;
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.environments.envio.actions.ActionArray;
-import rltoys.environments.envio.observations.Legend;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
 import zephyr.plugin.core.api.synchronization.Clock;
 
@@ -24,8 +23,6 @@ public class ObamaMerkelProblem {
   double[] obsArray;
 
   private double reward = 0.0;
-  private double motionValue;
-
   double motion = 0.0;
   private final double headMotionThreshold = 0.01;
   private final double cameraMotionThreshold = 13.5;
@@ -35,7 +32,6 @@ public class ObamaMerkelProblem {
 
   private final double[] joints = new double[14];
   private final double[] stiffness = new double[14];
-  private Legend legend;
   private final Clock clock;
 
   // private final PVector soundMagnitudes0 = new PVector(1024);
@@ -43,7 +39,7 @@ public class ObamaMerkelProblem {
 
 
   public ObamaMerkelProblem(NaoRobot R, Clock clock) {
-    this.robot = R;
+    robot = R;
     naoAct.set(joints, 0.1, stiffness, null, null);
     robot.sendAction(naoAct);
     this.clock = clock;
@@ -75,28 +71,25 @@ public class ObamaMerkelProblem {
       if (motion > cameraMotionThreshold) {
         reward = 1.0;
         System.out.println("ZERO");
-      } else {
+      } else
         reward = 0.0;
-      }
     } else {
       System.out.println("Motion is NOT zero!");
       reward = 0.0;
     }
 
     // Light LEDs of Nao according to reward:
-    if (reward < 1.0) {
+    if (reward < 1.0)
       leds = NaoAction.setFaceLeds(2);
-    } else {
+    else
       leds = NaoAction.setFaceLeds(1);
-    }
 
     // Set the desired agent action:
     joints[0] = action.actions[0];
-    if (joints[0] > 1.0) {
+    if (joints[0] > 1.0)
       joints[0] = 1.0;
-    } else if (joints[0] < -1.0) {
+    else if (joints[0] < -1.0)
       joints[0] = -1.0;
-    }
     // Put these LEDs to the nao...
     naoAct.set(joints, 0.1, stiffness, leds, null);
     robot.sendAction(naoAct);
@@ -104,11 +97,11 @@ public class ObamaMerkelProblem {
 
   public void run() {
     System.out.println("Entering the run function...");
-    Action[] act = this.actions();
+    Action[] act = actions();
 
     while (!clock.isTerminated()) {
       clock.tick();
-      this.update((ActionArray) act[2]);
+      update((ActionArray) act[2]);
     }
   }
 

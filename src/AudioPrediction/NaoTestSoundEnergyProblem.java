@@ -7,8 +7,6 @@ import java.util.Random;
 
 import nao.NaoAction;
 import nao.NaoRobot;
-
-
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
 import rltoys.algorithms.learning.control.sarsa.Sarsa;
 import rltoys.algorithms.learning.control.sarsa.SarsaControl;
