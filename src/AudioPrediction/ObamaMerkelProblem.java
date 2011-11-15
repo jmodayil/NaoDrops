@@ -1,22 +1,20 @@
 package AudioPrediction;
 
-<<<<<<< HEAD
 import java.util.Random;
 
+import nao.NaoAction;
+import nao.NaoRobot;
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
 import rltoys.algorithms.learning.control.sarsa.Sarsa;
 import rltoys.algorithms.learning.control.sarsa.SarsaControl;
 import rltoys.algorithms.representations.acting.Policy;
-=======
-import nao.NaoAction;
-import nao.NaoRobot;
->>>>>>> 7f8f29780bbb7055bcfbb48adbb89288b338552e
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.algorithms.representations.actions.TabularAction;
 import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.math.ranges.Range;
 import rltoys.math.vector.BinaryVector;
+import rltoys.math.vector.RealVector;
 import rltoys.math.vector.implementations.PVector;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
 import zephyr.plugin.core.api.synchronization.Clock;
@@ -167,7 +165,7 @@ public class ObamaMerkelProblem {
 
     // Initialise tilecoder
     TileCodersNoHashing tileCoders = new TileCodersNoHashing(this.getObservationRagnes());
-    tileCoders.addFullTilings(20, 4);
+    tileCoders.addIndependentTilings(3, 2);
 
     // Associate actions and states...
     TabularAction toStateAction = new TabularAction(this.actions(), tileCoders.vectorSize());
@@ -188,12 +186,13 @@ public class ObamaMerkelProblem {
 
 
     // run the problem:
-    PVector o_t = null;
-    PVector o_tp1 = null;
-    BinaryVector x_t = null;
     ActionArray a_tp1 = (ActionArray) this.actions()[2];
-    ActionArray a_t = null;
-    double r_tp1;
+    ActionArray a_t = a_tp1;
+    this.update(a_tp1);
+
+    PVector o_tp1 = this.getObs();
+    double r_tp1 = this.getReward();
+    RealVector x_t = tileCoders.project(o_tp1.accessData());
 
     while (!this.robot.isClosed() && !clock.isTerminated()) {
       clock.tick(); // CD: observes all variables for zephyr plot function
