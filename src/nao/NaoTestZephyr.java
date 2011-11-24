@@ -1,9 +1,9 @@
 package nao;
 
-import AudioPrediction.ObamaMerkelProblem;
 import zephyr.plugin.core.api.Zephyr;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
 import zephyr.plugin.core.api.synchronization.Clock;
+import AudioPrediction.ObamaMerkelProblem;
 
 @Monitor
 public class NaoTestZephyr implements Runnable {

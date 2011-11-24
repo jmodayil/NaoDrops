@@ -48,9 +48,9 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
   }
 
   public SoundEnergyProblem(NaoRobot R, double lowerBorder, double upperBorder) {
-    this.robot = R;
-    this.LOWERBORDER = lowerBorder;
-    this.UPPERBORDER = upperBorder;
+    robot = R;
+    LOWERBORDER = lowerBorder;
+    UPPERBORDER = upperBorder;
   }
 
   protected void update(ActionArray action) {
@@ -74,33 +74,29 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
     // Calculate the current reward for the action that was taken LAST time:
     System.out.println(soundEnergy);
     if (soundEnergy < LOWERBORDER) {
-      if (leds[0] > 0.9) {
+      if (leds[0] > 0.9)
         reward = 1.0;
-      } else {
+      else
         reward = -10.0;
-      }
       System.out.println("LOW SOUND!");
     } else if (soundEnergy < UPPERBORDER) {
-      if (leds[1] > 0.9) {
+      if (leds[1] > 0.9)
         reward = 1.0;
-      } else {
+      else
         reward = -10.0;
-      }
       System.out.println("MEDIUM SOUND!");
     } else {
-      if (leds[2] > 0.9) {
+      if (leds[2] > 0.9)
         reward = 1.0;
-      } else {
+      else
         reward = -10.0;
-      }
       System.out.println("HIGH SOUND!");
     }
 
-    if (reward < 0) {
+    if (reward < 0)
       leds = NaoAction.setFaceLeds(2);
-    } else {
+    else
       leds = NaoAction.setFaceLeds(1);
-    }
 
 
     // Set LEDs according to the action array...

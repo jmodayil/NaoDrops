@@ -165,20 +165,17 @@ public class NaoAction extends ActionArray {
     double[] leds = new double[83];
     switch (color) {
     case 0:
-      for (int n = 23; n < 39; n++) {
+      for (int n = 23; n < 39; n++)
         leds[n] = 1.0;
-      }
       break;
     case 1:
-      for (int n = 39; n < 55; n++) {
+      for (int n = 39; n < 55; n++)
         leds[n] = 1.0;
-      }
       break;
 
     case 2:
-      for (int n = 55; n < 71; n++) {
+      for (int n = 55; n < 71; n++)
         leds[n] = 1.0;
-      }
       break;
     }
     return leds;

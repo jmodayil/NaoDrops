@@ -36,7 +36,6 @@ public class VisualNexting implements Runnable {
     SVector x_t = null;
     while (!clock.isTerminated()) {
       double[] obs = robot.newObsNow();
-      double neckpos = obs[neckAngle];
       SVector x_tp1 = new SVector(nbFeatures);
       reward = extractGreen();
       prediction = tdl.predict(x_tp1);
@@ -49,14 +48,14 @@ public class VisualNexting implements Runnable {
 
     int blue = 0, count = 0;
     for (int i : robot.argbBuffer.array()) {
-      int r = (i / 256 * 256) % 256;
-      int g = (i / 256) % 256;
+      int r = i / 256 * 256 % 256;
+      int g = i / 256 % 256;
       int b = i % 256;
       if (b > 240 & r < 200 & g < 200)
         blue++;
       count++;
     }
-    return ((double) blue) / count;
+    return (double) blue / count;
   }
 
 
