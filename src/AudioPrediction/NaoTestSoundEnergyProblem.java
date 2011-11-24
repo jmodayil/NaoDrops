@@ -7,8 +7,6 @@ import java.util.Random;
 
 import nao.NaoAction;
 import nao.NaoRobot;
-
-
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
 import rltoys.algorithms.learning.control.sarsa.Sarsa;
 import rltoys.algorithms.learning.control.sarsa.SarsaControl;
@@ -94,7 +92,7 @@ public class NaoTestSoundEnergyProblem {
     // Don't know yet what this means...
     TabularAction toStateAction = new TabularAction(problem.actions(), tileCoders.vectorSize());
     // Set parameters for Sarsa
-    double alpha = .2 / tileCoders.nbActive();
+    double alpha = .2 / tileCoders.vectorNorm();
     double gamma = 0.0;
     double lambda = .3;
     // Initialize Sarsa Algorithm:

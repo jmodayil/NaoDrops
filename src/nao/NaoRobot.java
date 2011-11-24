@@ -2,7 +2,6 @@ package nao;
 
 import java.util.List;
 
-
 import rlpark.plugin.robot.RobotEnvironment;
 import rlpark.plugin.robot.disco.datatype.LiteByteBuffer;
 import rlpark.plugin.robot.disco.drops.Drop;
@@ -113,6 +112,10 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
   public double getMotion() {
     return centerImage.getMotion();
+  }
+
+  public double getLuminance() {
+    return centerImage.getLuminance();
   }
 
   public void sendAction(NaoAction action) {

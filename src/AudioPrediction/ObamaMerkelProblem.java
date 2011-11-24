@@ -5,12 +5,13 @@ import java.util.Random;
 import nao.NaoAction;
 import nao.NaoRobot;
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
-import rltoys.algorithms.learning.control.sarsa.Sarsa;
-import rltoys.algorithms.learning.control.sarsa.SarsaControl;
+import rltoys.algorithms.learning.control.qlearning.QLearning;
+import rltoys.algorithms.learning.control.qlearning.QLearningControl;
 import rltoys.algorithms.representations.acting.Policy;
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.algorithms.representations.actions.TabularAction;
 import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;
+import rltoys.algorithms.representations.traces.ATraces;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.math.ranges.Range;
 import rltoys.math.vector.BinaryVector;
@@ -21,172 +22,174 @@ import zephyr.plugin.core.api.synchronization.Clock;
 
 @Monitor
 public class ObamaMerkelProblem {
-  protected static final ActionArray LEFT = new ActionArray(-0.03);
-  protected static final ActionArray RIGHT = new ActionArray(0.03);
-  protected static final ActionArray REST = new ActionArray(0.0);
-  protected static final Action[] Actions = { LEFT, RIGHT, REST };
+  QLearning learning;
+  QLearningControl control;
+  TileCodersNoHashing tileCoders;
+  protected static final ActionArray LEFT = new ActionArray(0.4);
+  protected static final ActionArray RIGHT = new ActionArray(0.6);
+  // protected static final ActionArray REST = new ActionArray(0.0);
+  protected static final Action[] Actions = { LEFT, RIGHT };
 
+  int nbOfObs = 1 + 1; //
 
   private double[] leds = new double[83];
   private final NaoRobot robot;
   private final NaoAction naoAct = new NaoAction();
 
+  double expectation;
 
   double[] obsArray;
+  double[] oldFFTvalues = new double[3];
+
   double energy;
   private double reward = 0.0;
 
   double cameraMotion = 0.0;
-  private final double cameraMotionThreshold = 13.5;
+  double luminance = 0.0;
 
-
-  private final double headMotionThreshold = 0.001;
-  private final double secondLastHeadPosition = 0.0;
   private double headMotion = 0.0;
   private double oldHeadPosition;
   private double currentHeadPosition;
   private double headDifference;
   double headJoint = 0;
+  double headMotionThreshold = 0.00075;
 
   private final double[] joints = new double[14];
   private final double[] stiffness = new double[14];
+  private final double maxVel = 0.5;
   private final Clock clock;
 
-  private final Range soundMagnitudeRange = new Range(7.0, 400.0);
-  private final Range cameraMotionRange = new Range(4.0, 20.0);
-  private final Range headPositionRange = new Range(0.2, 0.8);
-  private final Range headMotionRange = new Range(-0.06, 0.06);
-
   // head pos + cam motion + head motion + FFT magnitudes
-  private final PVector obsRewardVector = new PVector(1 + 1 + 1 + 1024);
+  @Monitor
+  private final PVector obsVector = new PVector(nbOfObs);
+  double oldAction = 0;
+  private final TabularAction toStateAction;
+  private Range cameraMotionRange;
+  private Range headPositionRange;
+  private Range luminanceRange;
 
 
   public ObamaMerkelProblem(NaoRobot R, Clock clock) {
     this.robot = R;
     joints[0] = 0.5;
-    stiffness[0] = 0.1;
-    naoAct.set(joints, 0.3, stiffness, null, null);
+    stiffness[0] = 0.4; // 0.075
+    naoAct.set(joints, maxVel, stiffness, null, null);
     robot.sendAction(naoAct);
 
     this.clock = clock;
+
+    // Initialise tilecoder
+    tileCoders = new TileCodersNoHashing(this.getObservationRanges());
+    tileCoders.addFullTilings(3, 1);
+
+    // Associate actions and states...
+    toStateAction = new TabularAction(this.actions(), tileCoders.vectorSize());
+    // Set parameters for Sarsa
+    double alpha = .2 / tileCoders.vectorNorm();
+    double gamma = 0.0;
+    double lambda = 0.0;
+    // Initialize Sarsa Algorithm:
+    // learning = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize());
+    learning = new QLearning(this.actions(), alpha, gamma, lambda, toStateAction, toStateAction.vectorSize(),
+                             new ATraces());
+    double epsilon = 0.1;
+    // Use epsilon-greedy policy:
+    Policy acting = new EpsilonGreedy(new Random(0), this.actions(), toStateAction, learning, epsilon);
+    // Initialize the sarsa control algorithm:
+    // control = new SarsaControl(acting, toStateAction, learning);
+    control = new QLearningControl(acting, learning);
+
+    System.out.println("tostateaction vectorsize:  " + toStateAction.vectorSize());
+
   }
 
   public void update(ActionArray action) {
-    // Get new observations from robot:
-    obsArray = robot.waitNewObs();
+    // Send the desired action to the robot:
+    joints[0] = action.actions[0];
+    naoAct.set(joints, maxVel, stiffness, null, null);
+    robot.sendAction(naoAct);
 
-    // Copy the sound observations to the soundMagnitudes vectors:
-    for (int n = 0; n < 1024; n++) {
-      obsRewardVector.setEntry(n + 3, obsArray[67 + n]);
+
+    // Get new observations from robot and force him to wait for 50 waitnewobs
+    // calls:
+    for (int n = 0; n < 15; n++) {
+      obsArray = robot.waitNewObs();
+      robot.sendAction(naoAct);
+      clock.tick();
     }
-    // Scale the values...
-    obsRewardVector.mapMultiplyToSelf(0.00001);
 
-    energy = obsRewardVector.dotProduct(obsRewardVector);
 
     // get new cam motion value:
     cameraMotion = robot.getMotion();
 
-    // get new Head Position and motion:
-    oldHeadPosition = currentHeadPosition;
-    currentHeadPosition = obsArray[12];
-    headDifference = currentHeadPosition - oldHeadPosition;
-    headMotion = headMotion + .5 * (headDifference - headMotion);
+    reward = cameraMotion;
 
-    // set headMotion, head Position and cam motion in obsRewardVector:
-    obsRewardVector.setEntry(0, currentHeadPosition);
-    obsRewardVector.setEntry(1, cameraMotion);
-    obsRewardVector.setEntry(2, headMotion);
+    // Set the observations to the observation vector:
 
+    oldAction = action.actions[0];
+    obsVector.setEntry(0, headPositionRange.bound(action.actions[0]));
+    obsVector.setEntry(1, cameraMotionRange.bound(cameraMotion));
+  }
 
-    // Calculate Reward:
-    if (Math.abs(headMotion) < headMotionThreshold
-        && Math.abs(headMotion - secondLastHeadPosition) < headMotionThreshold) {
-      if (cameraMotion > cameraMotionThreshold) {
-        reward = 1.0;
-        // System.out.println("Headmotion is ZERO, cameramotion is high");
-      } else {
-        reward = 0.0;
-        // System.out.println("Headmotion is zero, cameramotion is low...");
-      }
-    } else {
-      // System.out.println("Motion is NOT zero!");
-      reward = 0.0;
-    }
-
-    // Set the reward:
-    obsRewardVector.setEntry(0, reward);
-
+  private void lightLEDsReward() {
     // Light LEDs of Nao according to reward:
     if (reward < 1.0) {
-      leds = NaoAction.setFaceLeds(1);
-    } else {
       leds = NaoAction.setFaceLeds(2);
+    } else if (reward < 10) {
+      leds = NaoAction.setFaceLeds(0);
+    } else {
+      leds = NaoAction.setFaceLeds(1);
     }
-
-    // Set the desired agent action:
-    joints[0] = joints[0] + action.actions[0];
-    if (joints[0] > 0.8) {
-      joints[0] = 0.8;
-    } else if (joints[0] < 0.2) {
-      joints[0] = 0.2;
-    }
-
-
-    // Put these LEDs and joint values to the nao...
-    naoAct.set(joints, 0.3, stiffness, leds, null);
+    naoAct.set(null, maxVel, null, leds, null);
     robot.sendAction(naoAct);
   }
 
+  private void waitNewSound() {
+    while (obsArray[100] == oldFFTvalues[0] || obsArray[200] == oldFFTvalues[1] || obsArray[1000] == oldFFTvalues[2]) {
+      obsArray = robot.waitNewObs();
+      clock.tick();
+    }
+    oldFFTvalues[0] = obsArray[100];
+    oldFFTvalues[1] = obsArray[200];
+    oldFFTvalues[2] = obsArray[1000];
+    return;
+  }
+
+  private void updateHeadMotion(double alpha) {
+    oldHeadPosition = currentHeadPosition;
+    currentHeadPosition = obsArray[12];
+    headDifference = currentHeadPosition - oldHeadPosition;
+
+    headMotion = headMotion + alpha * (headDifference - headMotion);
+  }
+
   public PVector getObs() {
-    return obsRewardVector.copy();
+    return obsVector.copy();
   }
 
   public double getReward() {
     return reward;
   }
 
-  public Range[] getObservationRagnes() {
-    Range[] outRanges = new Range[1 + 1 + 1 + 1024];
+  public Range[] getObservationRanges() {
+    // private final Range soundMagnitudeRange = new Range(0.0, 200.0);
+    // luminanceRange = new Range(0.0, 255.0);
+    cameraMotionRange = new Range(1.0, 10.0);
+    headPositionRange = new Range(0.39, 0.61);
+    // Range headMotionRange = new Range(-0.06, 0.06);
+
+    Range[] outRanges = new Range[nbOfObs];
 
     outRanges[0] = headPositionRange;
     outRanges[1] = cameraMotionRange;
-    outRanges[2] = headMotionRange;
-
-    for (int n = 0; n < 1024; n++) {
-      outRanges[n + 3] = soundMagnitudeRange;
-    }
     return outRanges;
   }
 
   public void run() {
     System.out.println("Entering the run function...");
-    Action[] act = this.actions();
-
-    // Initialise tilecoder
-    TileCodersNoHashing tileCoders = new TileCodersNoHashing(this.getObservationRagnes());
-    tileCoders.addIndependentTilings(3, 2);
-
-    // Associate actions and states...
-    TabularAction toStateAction = new TabularAction(this.actions(), tileCoders.vectorSize());
-    // Set parameters for Sarsa
-    double alpha = .2 / tileCoders.nbActive();
-    double gamma = 0.6;
-    double lambda = .3;
-    // Initialize Sarsa Algorithm:
-    Sarsa sarsa = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize()); // Hope
-                                                                               // vectorsize
-                                                                               // is
-                                                                               // correct!
-    double epsilon = 0.01;
-    // Use epsilon-greedy policy:
-    Policy acting = new EpsilonGreedy(new Random(0), this.actions(), toStateAction, sarsa, epsilon);
-    // Initialize the sarsa control algorithm:
-    SarsaControl control = new SarsaControl(acting, toStateAction, sarsa);
-
 
     // run the problem:
-    ActionArray a_tp1 = (ActionArray) this.actions()[2];
+    ActionArray a_tp1 = (ActionArray) this.actions()[1];
     ActionArray a_t = a_tp1;
     this.update(a_tp1);
 
@@ -204,29 +207,45 @@ public class ObamaMerkelProblem {
 
       BinaryVector x_tp1 = tileCoders.project(o_tp1.accessData());
       a_tp1 = (ActionArray) control.step(x_t, a_t, x_tp1, r_tp1);
+      inspect(x_tp1);
       x_t = x_tp1;
+
+
+    }
+    // Release the robot's stiffness:
+    System.out.println("Release the robot's stiffness:");
+    this.releaseRobot();
+  }
+
+  private void inspect(BinaryVector x_tp1) {
+    // TODO Auto-generated method stub
+    int nbOfFeatures = toStateAction.vectorSize();
+    PVector probe = new PVector(nbOfFeatures);
+
+    for (int n = 0; n < nbOfFeatures; n++) {
+      probe.setEntry(n, 1);
+
+      String s = "";
+      if (x_tp1.getEntry(n) != 0) {
+        s = "*";
+      }
+      System.out.println(learning.predict(probe) + "   " + n + s);
+      probe.setEntry(n, 0);
     }
 
 
-    // int stepss = 0;
-    // Random gen = new Random();
-    //
-    // while (!clock.isTerminated()) {
-    // stepss++;
-    // clock.tick();
-    // if (stepss % 25 == 0) {
-    // // if (test > .5) {
-    // // this.update((ActionArray) act[1]);
-    // // System.out.println("LEFT");
-    // // } else {
-    // // this.update((ActionArray) act[0]);
-    // // System.out.println("RIGHT");
-    // // }
-    // this.update((ActionArray) act[0]);
-    // } else {
-    // this.update((ActionArray) act[2]);
-    // }
-    // }
+  }
+
+  public void releaseRobot() {
+    // Release the robot's stiffness...
+    System.out.println("releasing the robot...");
+    stiffness[0] = 0.0;
+    joints[0] = 0.5;
+    naoAct.set(joints, 0.3, stiffness, null, null);
+    robot.sendAction(naoAct);
+
+    System.out.println("Robot is released...");
+
   }
 
   public Action[] actions() {
