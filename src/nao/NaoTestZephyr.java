@@ -24,7 +24,7 @@ public class NaoTestZephyr implements Runnable {
   @Override
   public void run() {
     System.out.println("Calling the run() method of NaoTestZephyr class");
-    runner.run();
+    // runner.run();
   }
 
 
