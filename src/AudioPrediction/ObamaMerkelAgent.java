@@ -36,7 +36,7 @@ public class ObamaMerkelAgent {
     // Associate actions and states...
     toStateAction = new TabularAction(possibleActions, tileCoders.vectorSize());
     // Set parameters for Sarsa
-    double alpha = .2 / tileCoders.vectorNorm();
+    double alpha = .1 / tileCoders.vectorNorm();
     double gamma = 0.0;
     double lambda = 0.0;
     // Initialize Sarsa Algorithm:
@@ -54,7 +54,7 @@ public class ObamaMerkelAgent {
   }
 
   public Action step(RealVector s_t, Action a_t, RealVector s_tp1, double r_tp1) {
-    epsilon = epsilon * 0.95;
+    epsilon = epsilon * 0.98;
     System.out.print("Epsilon: " + epsilon + "\n");
     boolean changed = false;
     if (epsilon < 0.005 && changed == false) {
