@@ -31,7 +31,7 @@ public class ObamaMerkelAgent {
     // Initialize tilecoder
     this.possibleActions = possibleActions;
     tileCoders = new TileCodersNoHashing(obsRanges);
-    tileCoders.addFullTilings(2, 1);
+    tileCoders.addFullTilings(6, 1);
 
     // Associate actions and states...
     toStateAction = new TabularAction(possibleActions, tileCoders.vectorSize());
@@ -43,7 +43,7 @@ public class ObamaMerkelAgent {
     // learning = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize());
     learning = new QLearning(possibleActions, alpha, gamma, lambda, toStateAction, toStateAction.vectorSize(),
                              new ATraces());
-    epsilon = 0.6;
+    epsilon = 0.4;
     // Use epsilon-greedy policy:
     acting = new EpsilonGreedy(new Random(0), possibleActions, toStateAction, learning, epsilon);
     // Initialize the sarsa control algorithm:
@@ -54,7 +54,7 @@ public class ObamaMerkelAgent {
   }
 
   public Action step(RealVector s_t, Action a_t, RealVector s_tp1, double r_tp1) {
-    epsilon = epsilon * 0.98;
+    epsilon = epsilon * 0.99563;
     System.out.print("Epsilon: " + epsilon + "\n");
     boolean changed = false;
     if (epsilon < 0.005 && changed == false) {

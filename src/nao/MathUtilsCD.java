@@ -55,8 +55,8 @@ public class MathUtilsCD {
 
     // Calculate Variance:
     for (int n = 0; n < size; n++) {
-      val += (n - mean) * (n - mean) * vector.getEntry(n);
+      val += n * n * vector.getEntry(n);
     }
-    return val;
+    return val + mean * mean;
   }
 }

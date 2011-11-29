@@ -52,7 +52,7 @@ public class AudioPredictionZephyr implements Runnable {
 
       BinaryVector x_tp1 = agent.project(o_tp1.accessData());
       a_tp1 = (ActionArray) agent.step(x_t, a_t, x_tp1, r_tp1);
-      agent.inspect(x_tp1);
+      // agent.inspect(x_tp1);
       x_t = x_tp1;
 
       System.out.print("BinObsVector: " + x_t.getEntry(0) + " " + x_t.getEntry(1) + " " + x_t.getEntry(2) + " "
