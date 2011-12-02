@@ -12,8 +12,13 @@ import zephyr.plugin.core.api.synchronization.Clock;
 @Monitor
 public class ObamaMerkelProblem {
   protected static final ActionArray RIGHT = new ActionArray(0.4);
-  // protected static final ActionArray LEFT = new ActionArray(0.6);
-  protected static final Action[] Actions = { RIGHT };
+  protected static final ActionArray LEFT = new ActionArray(0.6);
+  protected static final ActionArray CENTER1 = new ActionArray(0.48);
+  protected static final ActionArray CENTER2 = new ActionArray(0.5);
+  protected static final ActionArray CENTER3 = new ActionArray(0.52);
+
+
+  protected static final Action[] Actions = { RIGHT, LEFT, CENTER2 };
 
   int nbOfObs = 1 + 1 + 1; //
 
@@ -50,9 +55,6 @@ public class ObamaMerkelProblem {
   private Range headPositionRange;
   private Range soundEnergyRange;
 
-  // private double mean;
-  // private double variance;
-
 
   public ObamaMerkelProblem(NaoRobot R, Clock clock) {
     this.robot = R;
@@ -71,44 +73,15 @@ public class ObamaMerkelProblem {
     robot.sendAction(naoAct);
 
 
-    // // Get new observations from robot and force him to wait for some
-    // waitNewObs
-    // // calls:
-    // meanSoundMagnitudes.mapMultiplyToSelf(0.0);
-    // System.out.print("square of zero-vector norm: " +
-    // meanSoundMagnitudes.dotProduct(meanSoundMagnitudes) + "\n");
-
-
     for (int n = 0; n < 18; n++) {
       if (!clock.isTerminated()) {
         obsArray = robot.waitNewObs();
-        System.out.println("STEP!");
-        // // Check whether sound Data is the same...
-        // if (!(obsArray[100] == oldFFTvalues[0] && obsArray[200] ==
-        // oldFFTvalues[1] && obsArray[1000] == oldFFTvalues[2])) {
-        // // Sound data is different!
-        // System.out.println("Sound Data is different!");
-        // oldFFTvalues[0] = obsArray[100];
-        // oldFFTvalues[1] = obsArray[200];
-        // oldFFTvalues[2] = obsArray[1000];
-        //
-        // // Add Sound Magnitudes to the soundObsVector:
-        // for (int k = 0; k < 1024; k++) {
-        // double d = obsArray[67 + k] + obsArray[67 + k + 1024] + obsArray[67 +
-        // k + 2048];
-        // double oldValue = meanSoundMagnitudes.getEntry(k);
-        // meanSoundMagnitudes.setEntry(k, d + oldValue);
-        // }
-        // }
+        // System.out.println("STEP!");
         robot.sendAction(naoAct);
         clock.tick();
       }
     }
-    // System.out.print("Entry at 120:" + meanSoundMagnitudes.getEntry(120) +
-    // "\n");
-    // // Calculate 1st and 2nd order Moments of meanSoundMagnitudes:
-    // mean = MathUtilsCD.expectation(meanSoundMagnitudes);
-    // variance = MathUtilsCD.variance(meanSoundMagnitudes, mean);
+
 
     // calculate sound energy for all channels:
     soundEnergy = 0;
@@ -123,27 +96,22 @@ public class ObamaMerkelProblem {
 
     reward = cameraMotion;
 
-    // This works for the non-pause task!
-    // if (reward > 3.0) {
-    // reward = 1.0;
-    // } else {
-    // reward = 0.0;
-    // }
-    if (cameraMotion < 3.0 && soundEnergy > 16) {
-      reward = -1.0;
-    } else {
+    if (cameraMotion > 3.0) {
       reward = 1.0;
-      if (oldAction != action.actions[0])
-        reward = 0.0;
+    } else {
+      reward = 0.0;
     }
+    if (oldAction != action.actions[0])
+      reward = -1.0;
 
     // Set the observations to the observation vector:
 
     oldAction = action.actions[0];
+
     obsVector.setEntry(0, headPositionRange.bound(action.actions[0]));
     obsVector.setEntry(1, cameraMotionRange.bound(cameraMotion) - 0.00001);
     obsVector.setEntry(2, soundEnergyRange.bound(soundEnergy) - 0.00001);
-    System.out.println(cameraMotionRange.bound(cameraMotion));
+    // System.out.println(cameraMotionRange.bound(cameraMotion));
   }
 
   private void lightLEDsReward() {

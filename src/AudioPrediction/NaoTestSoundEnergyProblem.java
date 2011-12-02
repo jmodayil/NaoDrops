@@ -17,7 +17,6 @@ import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;
 import rltoys.algorithms.representations.traces.AMaxTraces;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.environments.envio.observations.TRStep;
-import rltoys.environments.envio.observations.TStep;
 import rltoys.math.vector.BinaryVector;
 import rltoys.math.vector.RealVector;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
@@ -122,39 +121,6 @@ public class NaoTestSoundEnergyProblem {
 
   }
 
-  public NaoAction wgetAtp1(TStep step) {
-    // TODO Auto-generated method stub
-    // System.out.println("observation size " + step.o_tp1.length); // image
-    // buffer
-    // not reported
-    // for (int i = 0; i < 60 && i < step.o_tp1.length; i++)
-    // System.out.println(i + " " + step.o_tp1[i]);
-    logger.update();
-    if (i == 0 && j == 0)
-      for (int k = 0; k < 83; k++)
-        leds[k] = 0;
-    leds[i] = j / 7.0;
-    sounds[0] = i + 2;
-    sounds[1] = (j + 1) * 1024;
-    sounds[2] = .5;
-    // joints[mm] = 0.5 + 0.5 * Math.sin(mstep * 2 * Math.PI / 100.0);
-    // stiffness[mm] = .6;
-    na.set(joints, .2, stiffness, leds, sounds);
-
-    joints[mm] = 0.5;
-    stiffness[mm] = 0;
-    System.out.println("Motor: " + mm + " " + mstep + " ij: " + i + " " + j);
-
-    j = (j + 1) % 8;
-    if (j == 0)
-      i = (i + 1) % 83;
-
-    mstep = (mstep + 1) % 100;
-    if (mstep == 0)
-      mm = (mm + 1) % 14;
-
-    return na;
-  }
 
   public NaoAction getAtp1(double[] obs) {
     // Performs random action corresponding to current observation and stage...
