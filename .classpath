@@ -3,5 +3,7 @@
 	<classpathentry excluding="nao/NaoAgent.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="C:/Users/Christian/Documents/apache_java_commons_lang/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Weka-3-6/weka.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

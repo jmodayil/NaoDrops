@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 
 import nao.NaoRobot;
-import rltoys.math.vector.implementations.PVector;
 
 public class RecordFeatures {
   double[] obsArray;
@@ -13,7 +12,7 @@ public class RecordFeatures {
   double[] oldFFTvalues = new double[3];
   int steps;
   NaoRobot robot = new NaoRobot();
-  PVector[] features;
+  double[][] features;
   int nbOfFeatures;
   private final String filename;
   FileOutputStream fos = null;
@@ -24,8 +23,9 @@ public class RecordFeatures {
    */
   public static void main(String[] args) {
     // TODO Auto-generated method stub
+    // seconds, filename as parameters
 
-    double seconds = 10.0;
+    double seconds = 50.0;
     String filename = "featuresObject";
 
     if (args.length > 0) {
@@ -47,11 +47,12 @@ public class RecordFeatures {
     // Convert seconds to number of steps: sampling rate: 48000Hz, 8192 samples
     // per step. --> for n seconds, we need n*48000/8192 steps:
     steps = (int) (seconds * 48000 / 8192.0);
-    features = new PVector[steps];
+
     this.filename = filename;
 
     obsArray = robot.waitNewObs();
-    nbOfFeatures = obsArray.length - 67;
+    nbOfFeatures = 19; // obsArray.length - 67;
+    features = new double[steps][nbOfFeatures];
     System.out.println("There are " + nbOfFeatures + " Features per step!");
   }
 
@@ -59,12 +60,11 @@ public class RecordFeatures {
     int step = 0;
     // Wait for the desired number of Steps and record the sound Data:
     while (step < steps) {
-      features[step] = new PVector(nbOfFeatures);
       // Wait for new sound Data:
       this.waitNewSound();
-      // Save the sound features to the PVector array:
+      // Save the sound features to the double array:
       for (int n = 0; n < nbOfFeatures; n++) {
-        features[step].setEntry(n, obsArray[67 + n]);
+        features[step][n] = obsArray[67 + n];
       }
       System.out.println("Current Step: " + step);
       step++;
@@ -86,12 +86,13 @@ public class RecordFeatures {
 
   private void waitNewSound() {
     obsArray = robot.waitNewObs();
-    while (obsArray[100] == oldFFTvalues[0] || obsArray[200] == oldFFTvalues[1] || obsArray[1000] == oldFFTvalues[2]) {
+    while (obsArray[69] == oldFFTvalues[0] || obsArray[75] == oldFFTvalues[1] || obsArray[77] == oldFFTvalues[2]) {
       obsArray = robot.waitNewObs();
+      System.out.println("no new features...");
     }
-    oldFFTvalues[0] = obsArray[100];
-    oldFFTvalues[1] = obsArray[200];
-    oldFFTvalues[2] = obsArray[300];
+    oldFFTvalues[0] = obsArray[69];
+    oldFFTvalues[1] = obsArray[75];
+    oldFFTvalues[2] = obsArray[77];
     return;
   }
 }

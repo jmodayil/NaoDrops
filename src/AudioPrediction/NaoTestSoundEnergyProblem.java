@@ -89,7 +89,7 @@ public class NaoTestSoundEnergyProblem {
     // Add desired amount of tilings:
     tileCoders.addFullTilings(5, 3);
     // Don't know yet what this means...
-    TabularAction toStateAction = new TabularAction(problem.actions(), tileCoders.vectorSize());
+    TabularAction toStateAction = new TabularAction(problem.actions(), tileCoders.vectorNorm(), tileCoders.vectorSize());
     // Set parameters for Sarsa
     double alpha = .2 / tileCoders.vectorNorm();
     double gamma = 0.0;

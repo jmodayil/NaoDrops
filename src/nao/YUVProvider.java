@@ -5,9 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorConvertOp;
 
-import zephyr.plugin.core.api.video.ImageProvider;
-
-public class YUVProvider implements ImageProvider {
+public class YUVProvider implements zephyr.plugin.core.api.viewable.ImageProvider {
 
   private final int height;
   private final int width;

@@ -34,8 +34,11 @@ public class ObamaMerkelAgent {
     tileCoders.addFullTilings(6, 1);
 
     // Associate actions and states...
-    toStateAction = new TabularAction(possibleActions, tileCoders.vectorSize());
+    toStateAction = new TabularAction(possibleActions, tileCoders.vectorNorm(), tileCoders.vectorSize());
     // Set parameters for Sarsa
+    System.out.println("VectorNorm of TileCoder (is supposed to be the number of active Features): "
+        + tileCoders.vectorNorm());
+    System.out.println("VectorSize of Tilecoder: " + tileCoders.vectorSize());
     double alpha = .1 / tileCoders.vectorNorm();
     double gamma = 0.0;
     double lambda = 0.0;

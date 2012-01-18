@@ -4,12 +4,11 @@ import java.awt.image.BufferedImage;
 
 import rlpark.plugin.opencv.MotionMeasure;
 import zephyr.plugin.core.api.monitoring.annotations.Monitor;
-import zephyr.plugin.core.api.video.ImageProvider;
 
 import com.googlecode.javacv.cpp.opencv_core;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
-public class CenterImage implements ImageProvider {
+public class CenterImage implements zephyr.plugin.core.api.viewable.ImageProvider {
   YUVProvider bigImage;
   BufferedImage centerImage;
   double motionValue;

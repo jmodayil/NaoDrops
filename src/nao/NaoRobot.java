@@ -46,7 +46,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   // numSensors=67
   final static private DropData[] observationDescriptor = {
       new DropArray(new DropFloat(""), "sensors", -1, sensorNames),
-      new DropArray(new DropFloat(""), "soundFeatures", 6144), new DropNaoImage("image", 320, 240) };
+      new DropArray(new DropFloat(""), "soundFeatures", 8192 * 4), new DropNaoImage("image", 320, 240) };
 
   private static final Drop sensorDrop = new Drop("NaoState", observationDescriptor);
   private final NaoConnection naoConnection;
@@ -141,7 +141,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     List<String> labelsToLog = legend().getLabels();
     for (String label : labelsToLog) {
       final int obsIndex = legend().indexOf(label);
-      monitor.add(label, 0, new Monitored() {
+      monitor.add(label, new Monitored() {
         @Override
         public double monitoredValue() {
           double[] o_t = lastReceivedObs();
@@ -155,7 +155,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     String[] actLabels = NaoAction.getNames();
     for (int i = 0; i < actLabels.length; i++) {
       final int obsIndex = i;
-      monitor.add(actLabels[i], 0, new Monitored() {
+      monitor.add(actLabels[i], new Monitored() {
         @Override
         public double monitoredValue() {
           if (agentAction == null)
