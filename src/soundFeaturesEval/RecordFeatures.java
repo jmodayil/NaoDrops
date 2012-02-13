@@ -6,6 +6,10 @@ import java.io.ObjectOutputStream;
 
 import nao.NaoRobot;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import AudioPrediction.MFCCProvider;
+
 public class RecordFeatures {
   double[] obsArray;
   double[] featureArray;
@@ -18,6 +22,10 @@ public class RecordFeatures {
   FileOutputStream fos = null;
   ObjectOutputStream out = null;
 
+  // MFCC Processor:
+  MFCCProvider mfccProc = new MFCCProvider();
+  double[] meanMFCCs;
+
   /**
    * @param args
    */
@@ -25,7 +33,7 @@ public class RecordFeatures {
     // TODO Auto-generated method stub
     // seconds, filename as parameters
 
-    double seconds = 50.0;
+    double seconds = 60.0;
     String filename = "featuresObject";
 
     if (args.length > 0) {
@@ -40,31 +48,44 @@ public class RecordFeatures {
 
 
     RecordFeatures featureRecorder = new RecordFeatures(seconds, filename);
-    featureRecorder.recordFeatures();
+    try {
+      featureRecorder.recordFeatures();
+    } catch (IllegalArgumentException e) {
+      System.out.println("ERROR!!");
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      System.out.println("ERROR!!");
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   public RecordFeatures(double seconds, String filename) {
     // Convert seconds to number of steps: sampling rate: 48000Hz, 8192 samples
     // per step. --> for n seconds, we need n*48000/8192 steps:
-    steps = (int) (seconds * 48000 / 8192.0);
+    steps = (int) (seconds * 48000.0 / 8192.0);
 
     this.filename = filename;
 
     obsArray = robot.waitNewObs();
-    nbOfFeatures = 19; // obsArray.length - 67;
-    features = new double[steps][nbOfFeatures];
+    nbOfFeatures = obsArray.length - 67;
+    features = new double[steps][14];
     System.out.println("There are " + nbOfFeatures + " Features per step!");
   }
 
-  public void recordFeatures() {
+  public void recordFeatures() throws IllegalArgumentException, IOException {
     int step = 0;
     // Wait for the desired number of Steps and record the sound Data:
     while (step < steps) {
       // Wait for new sound Data:
-      this.waitNewSound();
+      obsArray = robot.waitNewObs();
+
+      meanMFCCs = mfccProc.getMeanMfccVector(ArrayUtils.subarray(obsArray, 67, obsArray.length));
+
       // Save the sound features to the double array:
-      for (int n = 0; n < nbOfFeatures; n++) {
-        features[step][n] = obsArray[67 + n];
+      for (int n = 0; n < 14; n++) {
+        features[step][n] = meanMFCCs[n];
       }
       System.out.println("Current Step: " + step);
       step++;
@@ -82,17 +103,6 @@ public class RecordFeatures {
     } catch (IOException ex) {
       ex.printStackTrace();
     }
-  }
 
-  private void waitNewSound() {
-    obsArray = robot.waitNewObs();
-    while (obsArray[69] == oldFFTvalues[0] || obsArray[75] == oldFFTvalues[1] || obsArray[77] == oldFFTvalues[2]) {
-      obsArray = robot.waitNewObs();
-      System.out.println("no new features...");
-    }
-    oldFFTvalues[0] = obsArray[69];
-    oldFFTvalues[1] = obsArray[75];
-    oldFFTvalues[2] = obsArray[77];
-    return;
   }
 }

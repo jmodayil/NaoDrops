@@ -3,14 +3,12 @@ package AudioPrediction;
 import java.util.Random;
 
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
-import rltoys.algorithms.learning.control.acting.Greedy;
-import rltoys.algorithms.learning.control.qlearning.QLearning;
-import rltoys.algorithms.learning.control.qlearning.QLearningControl;
+import rltoys.algorithms.learning.control.sarsa.Sarsa;
+import rltoys.algorithms.learning.control.sarsa.SarsaControl;
 import rltoys.algorithms.representations.acting.Policy;
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.algorithms.representations.actions.TabularAction;
 import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;
-import rltoys.algorithms.representations.traces.ATraces;
 import rltoys.math.ranges.Range;
 import rltoys.math.vector.BinaryVector;
 import rltoys.math.vector.RealVector;
@@ -21,17 +19,20 @@ import zephyr.plugin.core.api.monitoring.annotations.Monitor;
 public class ObamaMerkelAgent {
   private final TileCodersNoHashing tileCoders;
   private final TabularAction toStateAction;
-  private final QLearning learning;
-  private QLearningControl control;
-  private double epsilon;
-  private Policy acting;
+  private final Sarsa learning;
+  private final SarsaControl control;
+  private final double epsilon;
+  private final Policy acting;
   private final Action[] possibleActions;
+  double alpha, gamma, lambda;
+
 
   public ObamaMerkelAgent(Range[] obsRanges, Action[] possibleActions) {
     // Initialize tilecoder
     this.possibleActions = possibleActions;
     tileCoders = new TileCodersNoHashing(obsRanges);
-    tileCoders.addFullTilings(6, 1);
+    tileCoders.addIndependentTilings(4, 4);
+    tileCoders.includeActiveFeature();
 
     // Associate actions and states...
     toStateAction = new TabularAction(possibleActions, tileCoders.vectorNorm(), tileCoders.vectorSize());
@@ -39,34 +40,28 @@ public class ObamaMerkelAgent {
     System.out.println("VectorNorm of TileCoder (is supposed to be the number of active Features): "
         + tileCoders.vectorNorm());
     System.out.println("VectorSize of Tilecoder: " + tileCoders.vectorSize());
-    double alpha = .1 / tileCoders.vectorNorm();
-    double gamma = 0.0;
-    double lambda = 0.0;
+    alpha = .1 / tileCoders.vectorNorm();
+    gamma = 0.2;
+    lambda = 0.2;
+
+
     // Initialize Sarsa Algorithm:
     // learning = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize());
-    learning = new QLearning(possibleActions, alpha, gamma, lambda, toStateAction, toStateAction.vectorSize(),
-                             new ATraces());
-    epsilon = 0.33;
+    learning = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize());
+    epsilon = 0.1;
 
     // Use epsilon-greedy policy:
     acting = new EpsilonGreedy(new Random(0), possibleActions, toStateAction, learning, epsilon);
+
+
     // Initialize the sarsa control algorithm:
     // control = new SarsaControl(acting, toStateAction, learning);
-    control = new QLearningControl(acting, learning);
+    control = new SarsaControl(acting, toStateAction, learning);
 
     System.out.println("tostateaction vectorsize:  " + toStateAction.vectorSize());
   }
 
   public Action step(RealVector s_t, Action a_t, RealVector s_tp1, double r_tp1) {
-    epsilon = epsilon * 0.99;
-
-    System.out.print("Epsilon: " + epsilon + "\n");
-    boolean changed = false;
-    if (epsilon < 0.005 && changed == false) {
-      System.out.println("Change policy to greedy policy!");
-      acting = new Greedy(learning, possibleActions, toStateAction);
-      control = new QLearningControl(acting, learning);
-    }
     return this.control.step(s_t, a_t, s_tp1, r_tp1);
   }
 

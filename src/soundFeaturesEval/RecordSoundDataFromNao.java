@@ -26,7 +26,7 @@ public class RecordSoundDataFromNao {
     // TODO Auto-generated method stub
     // seconds, filename as parameters
 
-    double seconds = 180.0;
+    double seconds = 45.0;
 
 
     RecordSoundDataFromNao featureRecorder = new RecordSoundDataFromNao(seconds, args[0]);
@@ -36,10 +36,10 @@ public class RecordSoundDataFromNao {
   public RecordSoundDataFromNao(double seconds, String filename) throws IOException {
     // Convert seconds to number of steps: sampling rate: 48000Hz, 8192 samples
     // per step. --> for n seconds, we need n*48000/8192 steps:
-    steps = (int) (seconds * 48000 / 8192.0);
+    steps = (int) (seconds * 16000 / 2731.0);
     System.out.println("Total Steps: " + steps);
     obsArray = robot.waitNewObs();
-    nbOfFeatures = 8192 * 4; // obsArray.length - 67;
+    nbOfFeatures = obsArray.length - 67;
     features = new double[steps][nbOfFeatures];
     System.out.println("There are " + nbOfFeatures + " Features per step!");
 

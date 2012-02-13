@@ -1,7 +1,12 @@
 package AudioPrediction;
 
+import java.io.IOException;
+
 import nao.NaoAction;
 import nao.NaoRobot;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 import rltoys.algorithms.representations.actions.Action;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.math.ranges.Range;
@@ -12,17 +17,15 @@ import zephyr.plugin.core.api.synchronization.Clock;
 @Monitor
 public class ObamaMerkelProblem {
   // Actions
-  protected static final ActionArray RIGHT = new ActionArray(0.4);
-  protected static final ActionArray LEFT = new ActionArray(0.6);
-
-  protected static final ActionArray CENTER1 = new ActionArray(0.48);
-  protected static final ActionArray CENTER2 = new ActionArray(0.5);
-  protected static final ActionArray CENTER3 = new ActionArray(0.52);
+  protected static final ActionArray UL = new ActionArray(0.0);
+  protected static final ActionArray UR = new ActionArray(1.0);
+  protected static final ActionArray LL = new ActionArray(2.0);
+  protected static final ActionArray LR = new ActionArray(3.0);
 
 
-  protected static final Action[] Actions = { RIGHT, LEFT, CENTER2 };
+  protected static final Action[] Actions = { UL, UR, LL, LR };
 
-  int nbOfObs = 1 + 1 + 1; //
+  int nbOfObs = 1 + 14 + 1; //
 
   // Robot
   private double[] leds = new double[83];
@@ -40,115 +43,108 @@ public class ObamaMerkelProblem {
 
   private double reward = 0.0;
 
-  private double cameraMotion = 0.0;
+  private double[] cameraMotion = new double[4];
 
   // observation OUTPUT to agent:
   private final PVector obsVector = new PVector(nbOfObs);
 
   // Ranges
   private Range cameraMotionRange;
-  private Range headPositionRange;
-  private Range soundEnergyRange;
-  // private Range soundFrequencyRange;
-  // private Range soundVarianceRange;
+  // private Range headPositionRange;
+  private Range[] soundFeatureRange;
+  private Range actionRange;
 
   // Sound Data
-  double[] oldFFTvalues = new double[3];
-  // private final PVector meanSoundMagnitudes = new PVector(1024);
-  // private double mean;
-  // private double variance;
-  private double soundEnergy;
-  private double oldAction;
+  private double[] mfccs;
+  private double[] frame;
+
+  // MFCC Processor:
+  private final MFCCProvider mfccProc = new MFCCProvider();
+
+  // Choice of the subImage:
+  private double subImageSelection = 0.0;
+
+  // nextAction and currentAction:
+  double a_t = 0.0;
+  double a_tp1 = 0.0;
 
 
   public ObamaMerkelProblem(NaoRobot R, Clock clock) {
     this.robot = R;
-    joints[0] = 0.5;
-    stiffness[0] = 0.4; // 0.075
-    naoAct.set(joints, maxVel, stiffness, null, null);
-    robot.sendAction(naoAct);
+    // joints[0] = 0.5;
+    // stiffness[0] = 0.4; // 0.075
+    // naoAct.set(null, 0.0, null, null, null);
+    // robot.sendAction(naoAct);
 
     this.clock = clock;
   }
 
-  public void update(ActionArray action) {
+  public void update(ActionArray action) throws IllegalArgumentException, IOException {
+    if (clock.isTerminated()) {
+      // Check whether the clock is still active...
+      return;
+    }
     // Send the desired action to the robot:
-    joints[0] = action.actions[0];
-    naoAct.set(joints, maxVel, stiffness, null, null);
+    a_tp1 = action.actions[0];
+    subImageSelection = a_tp1;
+    naoAct.set(null, 0.0, null, leds(), null);
     robot.sendAction(naoAct);
 
+    // Receive new observations:
 
-    for (int n = 0; n < 18; n++) {
-      if (!clock.isTerminated()) {
-        obsArray = robot.waitNewObs();
-        // System.out.println("STEP!");
-
-        robot.sendAction(naoAct);
-        clock.tick();
-      }
-    }
-
+    obsArray = robot.waitNewObs();
 
     // get new cam motion value:
-    cameraMotion = robot.getMotion();
+    cameraMotion = robot.getCameraMotion();
 
-    // calculate sound energy for all channels:
-    soundEnergy = 0.0;
-    for (int n1 = 0; n1 < 3072; n1++) {
-      soundEnergy += obsArray[67 + n1] * obsArray[67 + n1];
+    calculateReward();
+
+
+    a_t = a_tp1;
+
+    generateOutputObsVector();
+
+  }
+
+  private void generateOutputObsVector() throws IOException {
+    // Output the new observations:
+    // obsVector.setEntry(0, headPositionRange.bound(action.actions[0]));
+    obsVector.setEntry(0, cameraMotionRange.bound(cameraMotion[(int) a_tp1]) - 0.00001);
+
+
+    // Calculate the MFCCs:
+    frame = ArrayUtils.subarray(obsArray, 67, obsArray.length);
+    // System.out.println("Length of Frame: " + frame.length);
+    mfccs = mfccProc.getMeanMfccVector(frame);
+    // MFCC Calculation Done.
+    for (int n = 1; n < 15; n++) {
+      obsVector.setEntry(n, soundFeatureRange[n - 1].bound(mfccs[n - 1]) - 0.00001);
     }
-    soundEnergy /= (3072 * 10000000000.0);
+    obsVector.setEntry(15, a_t);
+  }
 
-    reward = cameraMotion;
-
-    if (cameraMotion > 3.0) {
+  private void calculateReward() {
+    if (cameraMotion[(int) a_tp1] > 2.50) {
       reward = 1.0;
     } else {
       reward = 0.0;
     }
-    if (oldAction != action.actions[0])
-      reward = -1.0;
-
-    oldAction = action.actions[0];
-
-    obsVector.setEntry(0, headPositionRange.bound(action.actions[0]));
-    obsVector.setEntry(1, cameraMotionRange.bound(cameraMotion) - 0.00001);
-    obsVector.setEntry(2, soundEnergyRange.bound(soundEnergy) - 0.00001);
-    // System.out.println(cameraMotionRange.bound(cameraMotion));
-
+    if (a_t != a_tp1) {
+      reward = -0.5;
+    }
   }
 
-  private void lightLEDsReward() {
+  private double[] leds() {
     // Light LEDs of Nao according to reward:
-    if (reward < 1.0) {
+    if (reward == 1.0) {
       leds = NaoAction.setFaceLeds(2);
-    } else if (reward < 10) {
-      leds = NaoAction.setFaceLeds(0);
-    } else {
+    } else if (reward == 0.0) {
       leds = NaoAction.setFaceLeds(1);
+    } else {
+      leds = NaoAction.setFaceLeds(0);
     }
-    naoAct.set(null, maxVel, null, leds, null);
-    robot.sendAction(naoAct);
+    return leds;
   }
-
-  private void waitNewSound() {
-    while (obsArray[100] == oldFFTvalues[0] || obsArray[200] == oldFFTvalues[1] || obsArray[1000] == oldFFTvalues[2]) {
-      obsArray = robot.waitNewObs();
-      clock.tick();
-    }
-    oldFFTvalues[0] = obsArray[100];
-    oldFFTvalues[1] = obsArray[200];
-    oldFFTvalues[2] = obsArray[1000];
-    return;
-  }
-
-  // private void updateHeadMotion(double alpha) {
-  // oldHeadPosition = currentHeadPosition;
-  // currentHeadPosition = obsArray[12];
-  // headDifference = currentHeadPosition - oldHeadPosition;
-  //
-  // headMotion = headMotion + alpha * (headDifference - headMotion);
-  // }
 
   public PVector getObs() {
     return obsVector.copy();
@@ -159,28 +155,44 @@ public class ObamaMerkelProblem {
   }
 
   public Range[] getObservationRanges() {
-    soundEnergyRange = new Range(0.0, 30.0);
+    soundFeatureRange = new Range[14];
     cameraMotionRange = new Range(0.0, 6.0);
-    headPositionRange = new Range(0.39, 0.61);
-    // soundFrequencyRange = new Range(130.0, 205.0);
-    // soundVarianceRange = new Range(59000.0, 140000.0);
-    // Range headMotionRange = new Range(-0.06, 0.06);
+    // headPositionRange = new Range(0.39, 0.61);
+    actionRange = new Range(-0.01, 3.01);
+
+    soundFeatureRange[0] = new Range(21.06, 24.16);
+    soundFeatureRange[1] = new Range(531.4, 616.19);
+    soundFeatureRange[2] = new Range(24.6, 87.18);
+    soundFeatureRange[3] = new Range(-16.32, 27.28);
+    soundFeatureRange[4] = new Range(-10.45, 32.0);
+    soundFeatureRange[5] = new Range(-20.18, 8.27);
+    soundFeatureRange[6] = new Range(-25.89, 8.3);
+    soundFeatureRange[7] = new Range(-19.31, 13.36);
+    soundFeatureRange[8] = new Range(-11.76, 11.65);
+    soundFeatureRange[9] = new Range(-8.54, 13.78);
+    soundFeatureRange[10] = new Range(-8.44, 14.79);
+    soundFeatureRange[11] = new Range(-11.54, 10.56);
+    soundFeatureRange[12] = new Range(-8.29, 5.78);
+    soundFeatureRange[13] = new Range(-14.24, 6.42);
 
     Range[] outRanges = new Range[nbOfObs];
 
-    outRanges[0] = headPositionRange;
-    outRanges[1] = cameraMotionRange;
-    outRanges[2] = soundEnergyRange;
+    // outRanges[0] = headPositionRange;
+    outRanges[0] = cameraMotionRange;
+    for (int n = 1; n < 15; n++) {
+      outRanges[n] = soundFeatureRange[n - 1];
+    }
+    System.out.println("Length of outRanges: " + outRanges.length);
+    outRanges[15] = actionRange;
     return outRanges;
   }
-
 
   public void releaseRobot() {
     // Release the robot's stiffness...
     System.out.println("releasing the robot...");
     stiffness[0] = 0.0;
     joints[0] = 0.5;
-    naoAct.set(joints, 0.3, stiffness, null, null);
+    naoAct.set(joints, 0.0, stiffness, null, null);
     robot.sendAction(naoAct);
 
     System.out.println("Robot is released...");

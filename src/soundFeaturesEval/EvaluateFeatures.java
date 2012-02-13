@@ -9,6 +9,7 @@ import rltoys.algorithms.representations.actions.Action;
 import rltoys.algorithms.representations.actions.TabularAction;
 import rltoys.algorithms.representations.tilescoding.TileCodersNoHashing;
 import rltoys.environments.envio.actions.ActionArray;
+import rltoys.math.ranges.Range;
 import rltoys.math.vector.BinaryVector;
 
 public class EvaluateFeatures {
@@ -23,8 +24,7 @@ public class EvaluateFeatures {
   final static ActionArray THIRD = new ActionArray(2);
   final static ActionArray FOURTH = new ActionArray(3);
   final static ActionArray FIFTH = new ActionArray(4);
-  final static Action[] Actions = { FIRST, SECOND, THIRD, FOURTH, FIFTH };
-
+  Action[] Actions = null;
   // Parameters for Learning:
   double gamma = 0.0;
   double epsilon = 0.0;
@@ -47,8 +47,14 @@ public class EvaluateFeatures {
   int chosenPerson;
   int chosenSample;
 
+  boolean dependentTilings = false;
+  boolean includeActiveFeature = true;
+  boolean optimalTiling = false;
+  double[] minmax;
+
   public EvaluateFeatures(double[][][] training, double[][][] evaluation, double gamma, double epsilon, double lambda,
-      int gridResolution, int nbOfTilings) {
+      int gridResolution, int nbOfTilings, boolean dependentTilings, boolean includeActiveFeature, int nbOfSpeakers,
+      boolean optimalTiling) {
     // TODO Auto-generated constructor stub
     this.training = training;
     this.evaluation = evaluation;
@@ -57,22 +63,48 @@ public class EvaluateFeatures {
     this.lambda = lambda;
     this.gridResolution = gridResolution;
     this.nbOfTilings = nbOfTilings;
+    this.dependentTilings = dependentTilings;
+    this.optimalTiling = optimalTiling;
+    this.Actions = createActions(nbOfSpeakers);
+    System.out.println("Number of Actions: " + this.Actions.length);
 
 
-    // Find maximum and minimum values amongst both training and evaluation
-    // samples:
-    double[] minmax = findMinMax(training, evaluation);
-    System.out.println();
-
-    System.out.println("Minimum and Maximum: " + minmax[0] + " " + minmax[1]);
-    minmax[0] = minmax[0] - 0.0001;
-    minmax[1] = minmax[1] + 0.0001;
+    if (optimalTiling) {
+      // Find the optimal Ranges:
+      Range[] ranges = calculateRanges(training, evaluation);
+      System.out.println("Using optimal Tilings...");
+      tileCoder = new TileCodersNoHashing(ranges);
+    } else {
+      System.out.println("Using suboptimal Tilings...");
+      minmax = findMinMax(training, evaluation);
+      System.out.println("Minimum and Maximum: " + minmax[0] + " " + minmax[1]);
+      minmax[0] = minmax[0] - 0.0001;
+      minmax[1] = minmax[1] + 0.0001;
+      tileCoder = new TileCodersNoHashing(training[0][0].length, minmax[0], minmax[1]);
+    }
 
 
     // Initialize the learning framework:
-    tileCoder = new TileCodersNoHashing(training[0][0].length, minmax[0], minmax[1]);
-    tileCoder.addIndependentTilings(gridResolution, nbOfTilings);
-    tileCoder.includeActiveFeature();
+
+    if (dependentTilings) {
+      System.out.println("Creating Dependent Tilings...");
+      for (int n = 0; n < this.getSampleSizes()[3]; n++) {
+        for (int o = n + 1; o < this.getSampleSizes()[3]; o++) {
+          int[] inputIndexes = { n, o };
+          tileCoder.addTileCoder(inputIndexes, gridResolution, nbOfTilings);
+        }
+      }
+    } else {
+      System.out.println("Creating Independent Tilings...");
+      tileCoder.addIndependentTilings(gridResolution, nbOfTilings);
+    }
+    if (includeActiveFeature) {
+      System.out.println("Including Active Feature...");
+      tileCoder.includeActiveFeature();
+    } else {
+      System.out.println("NOT Including Active Feature...");
+    }
+
 
     // Print the tileCoder vectorSize and vectorNorm:
     System.out.println("tilecoder.vectorSize and tilecoder.vectorNorm: " + tileCoder.vectorSize() + " "
@@ -99,6 +131,26 @@ public class EvaluateFeatures {
     chosenSample = 0;
   }
 
+  private Action[] createActions(int nbOfSpeakers) {
+    switch (nbOfSpeakers) {
+    case 2:
+      Action[] Actions2 = { FIRST, SECOND };
+      return Actions2;
+    case 3:
+      Action[] Actions3 = { FIRST, SECOND, THIRD };
+      return Actions3;
+    case 4:
+      Action[] Actions4 = { FIRST, SECOND, THIRD, FOURTH };
+      return Actions4;
+    case 5:
+      Action[] Actions5 = { FIRST, SECOND, THIRD, FOURTH, FIFTH };
+      return Actions5;
+    default:
+      System.out.println("NUMBER OF SPEAKERS IS NOT VALID!");
+      return null;
+    }
+  }
+
   private double[] findMinMax(double[][][] training, double[][][] evaluation) {
     double currentMax;
     double currentMin;
@@ -106,21 +158,48 @@ public class EvaluateFeatures {
     // Find max and min of training set:
     for (int person = 0; person < training.length; person++) {
       for (int step = 0; step < training[0].length; step++) {
-        currentMax = Arrays.max(training[person][step]);
+        currentMax = CDArrays.max(training[person][step]);
         minMax[1] = minMax[1] > currentMax ? minMax[1] : currentMax;
 
-        currentMin = Arrays.min(training[person][step]);
+        currentMin = CDArrays.min(training[person][step]);
         minMax[0] = minMax[0] < currentMin ? minMax[0] : currentMin;
       }
       for (int step = 0; step < evaluation[0].length; step++) {
-        currentMax = Arrays.max(evaluation[person][step]);
+        currentMax = CDArrays.max(evaluation[person][step]);
         minMax[1] = minMax[1] > currentMax ? minMax[1] : currentMax;
 
-        currentMin = Arrays.min(evaluation[person][step]);
+        currentMin = CDArrays.min(evaluation[person][step]);
         minMax[0] = minMax[0] < currentMin ? minMax[0] : currentMin;
       }
     }
     return minMax;
+  }
+
+  private Range[] calculateRanges(double[][][] training, double[][][] evaluation) {
+    Range[] outRanges = new Range[training[0][0].length];
+    double min;
+    double max;
+
+
+    for (int sample = 0; sample < training[0][0].length; sample++) {
+      // Find min and Max for each sample:
+      min = Double.POSITIVE_INFINITY;
+      max = Double.NEGATIVE_INFINITY;
+
+      for (int person = 0; person < training.length; person++) {
+        for (int step = 0; step < training[0].length; step++) {
+          min = min < training[person][step][sample] ? min : training[person][step][sample];
+          max = max > training[person][step][sample] ? max : training[person][step][sample];
+
+          min = min < evaluation[person][step][sample] ? min : evaluation[person][step][sample];
+          max = max > evaluation[person][step][sample] ? max : evaluation[person][step][sample];
+        }
+      }
+      max = max + 0.00001;
+      min = min - 0.00001;
+      outRanges[sample] = new Range(min, max);
+    }
+    return outRanges;
   }
 
   public double evaluate() {
@@ -148,7 +227,7 @@ public class EvaluateFeatures {
         totalSteps++;
       }
     }
-    return (Arrays.sum(correct) / totalSteps);
+    return (CDArrays.sum(correct) / totalSteps);
   }
 
   public void train(int nbOfSteps, int[] chosenPersons, int[] chosenSamples) {
@@ -160,8 +239,8 @@ public class EvaluateFeatures {
       System.out.println("FATAL ERROR! number of steps is not consistent!");
       return;
     }
-    System.out.println("Maximum of chosenPersons and chosenSamples Arrays: " + Arrays.max(chosenPersons) + " "
-        + Arrays.max(chosenSamples));
+    System.out.println("Maximum of chosenPersons and chosenSamples Arrays: " + CDArrays.max(chosenPersons) + " "
+        + CDArrays.max(chosenSamples));
 
     // Perform ITERATIONS of training
     for (int step = 0; step < nbOfSteps; step++) {
@@ -199,5 +278,11 @@ public class EvaluateFeatures {
     sampleSizes[4] = evaluation[0].length;
     sampleSizes[5] = evaluation[0][0].length;
     return sampleSizes;
+  }
+
+  public void reset() {
+    learning = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize());
+    policy = new EpsilonGreedy(new Random(0), Actions, toStateAction, learning, epsilon);
+    control = new SarsaControl(policy, toStateAction, learning);
   }
 }

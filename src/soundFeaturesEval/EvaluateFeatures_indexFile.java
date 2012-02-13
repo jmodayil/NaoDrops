@@ -50,6 +50,7 @@ public class EvaluateFeatures_indexFile {
   ActionArray a_t;
   int chosenPerson;
   int chosenSample;
+  Range[] optimalRanges;
 
   public EvaluateFeatures_indexFile(double[][] training, double[][] evaluation, int[] trainingIndex,
       int[] evaluationIndex, double gamma, double epsilon, double lambda, int gridResolution, int nbOfTilings) {
@@ -65,26 +66,14 @@ public class EvaluateFeatures_indexFile {
     this.nbOfTilings = nbOfTilings;
 
 
-    // Find maximum and minimum values amongst both training and evaluation
-    // samples:
-    double[] minmax = findMinMax(training, evaluation);
-    System.out.println();
-
-    System.out.println("Minimum and Maximum: " + minmax[0] + " " + minmax[1]);
-    minmax[0] = minmax[0] - 0.0001;
-    minmax[1] = minmax[1] + 0.0001;
-
-    // Create a Ranges Array with the size of training[0].length + 1, and fill
-    // with the Ranges.
-    Range[] ranges = new Range[training[0].length + 1];
-    for (int n = 0; n < training[0].length; n++) {
-      ranges[n] = new Range(minmax[0], minmax[1]);
-    }
-    ranges[training[0].length] = new Range(-0.001, 1.001);
-
+    // Calculate the optimal Ranges:
+    optimalRanges = calculateRanges(training, evaluation);
+    System.out.println("Length of Ranges Vector: " + optimalRanges.length);
+    System.out.println("Values of last rangesthing: " + optimalRanges[training[0].length].max() + " "
+        + optimalRanges[training[0].length].min());
 
     // Initialize the learning framework:
-    tileCoder = new TileCodersNoHashing(ranges);
+    tileCoder = new TileCodersNoHashing(optimalRanges);
     tileCoder.addIndependentTilings(gridResolution, nbOfTilings);
     tileCoder.includeActiveFeature();
 
@@ -119,17 +108,17 @@ public class EvaluateFeatures_indexFile {
     double[] minMax = { Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY };
     // Find max and min of training set:
     for (int step = 0; step < training.length; step++) {
-      currentMax = Arrays.max(training[step]);
+      currentMax = CDArrays.max(training[step]);
       minMax[1] = minMax[1] > currentMax ? minMax[1] : currentMax;
 
-      currentMin = Arrays.min(training[step]);
+      currentMin = CDArrays.min(training[step]);
       minMax[0] = minMax[0] < currentMin ? minMax[0] : currentMin;
     }
     for (int step = 0; step < evaluation.length; step++) {
-      currentMax = Arrays.max(evaluation[step]);
+      currentMax = CDArrays.max(evaluation[step]);
       minMax[1] = minMax[1] > currentMax ? minMax[1] : currentMax;
 
-      currentMin = Arrays.min(evaluation[step]);
+      currentMin = CDArrays.min(evaluation[step]);
       minMax[0] = minMax[0] < currentMin ? minMax[0] : currentMin;
     }
     return minMax;
@@ -188,13 +177,42 @@ public class EvaluateFeatures_indexFile {
     }
   }
 
+  private Range[] calculateRanges(double[][] training, double[][] evaluation) {
+    Range[] outRanges = new Range[training[0].length + 1];
+    double min;
+    double max;
 
-  public int[] getSampleSizes() {
+
+    for (int sample = 0; sample < training[0].length; sample++) {
+      // Find min and Max for each sample:
+      min = Double.POSITIVE_INFINITY;
+      max = Double.NEGATIVE_INFINITY;
+
+
+      for (int step = 0; step < training.length; step++) {
+        min = min < training[step][sample] ? min : training[step][sample];
+        max = max > training[step][sample] ? max : training[step][sample];
+
+        min = min < evaluation[step][sample] ? min : evaluation[step][sample];
+        max = max > evaluation[step][sample] ? max : evaluation[step][sample];
+      }
+
+      max = max + 0.00001;
+      min = min - 0.00001;
+      outRanges[sample] = new Range(min, max);
+    }
+    outRanges[training[0].length] = new Range(-0.0001, 1.0001);
+    return outRanges;
+  }
+
+  public String getSampleSizes() {
     int[] sampleSizes = new int[4];
     sampleSizes[0] = training.length;
     sampleSizes[1] = training[0].length;
     sampleSizes[2] = evaluation.length;
     sampleSizes[3] = evaluation[0].length;
-    return sampleSizes;
+
+
+    return new String(sampleSizes[0] + " " + sampleSizes[1] + " " + sampleSizes[2] + " " + sampleSizes[3]);
   }
 }

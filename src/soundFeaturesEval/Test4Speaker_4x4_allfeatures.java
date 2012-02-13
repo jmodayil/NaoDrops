@@ -27,74 +27,84 @@ public class Test4Speaker_4x4_allfeatures {
     // 48kHz features:
 
     // FFTs:
-    String[] args_48_fft = { "test_recorded/clio_2mic_180s.txt_48_fftmag_1024_train",
-        "test_recorded/gabor_2mic_180s.txt_48_fftmag_1024_train",
-        "test_recorded/joseph_2mic_180s.txt_48_fftmag_1024_train",
-        "test_recorded/patrick_2mic_180s.txt_48_fftmag_1024_train",
-        "test_recorded/clio_2mic_180s.txt_48_fftmag_1024_eval",
-        "test_recorded/gabor_2mic_180s.txt_48_fftmag_1024_eval",
-        "test_recorded/joseph_2mic_180s.txt_48_fftmag_1024_eval",
-        "test_recorded/patrick_2mic_180s.txt_48_fftmag_1024_eval" };
+    String[] args_48_fft = { "test_data/test_recorded/clio_2mic_180s.txt_48_fftmag_1024_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_48_fftmag_1024_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_48_fftmag_1024_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_48_fftmag_1024_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_48_fftmag_1024_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_48_fftmag_1024_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_48_fftmag_1024_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_48_fftmag_1024_eval" };
     EvaluateFeatures fEval_48_fft = createFeatureEvaluator(args_48_fft);
 
 
     // MFCCs
-    String[] args_48_mfcc = { "test_recorded/clio_2mic_180s.txt_48_melfcc_train",
-        "test_recorded/gabor_2mic_180s.txt_48_melfcc_train", "test_recorded/joseph_2mic_180s.txt_48_melfcc_train",
-        "test_recorded/patrick_2mic_180s.txt_48_melfcc_train", "test_recorded/clio_2mic_180s.txt_48_melfcc_eval",
-        "test_recorded/gabor_2mic_180s.txt_48_melfcc_eval", "test_recorded/joseph_2mic_180s.txt_48_melfcc_eval",
-        "test_recorded/patrick_2mic_180s.txt_48_melfcc_eval" };
+    String[] args_48_mfcc = { "test_data/test_recorded/clio_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_48_melfcc_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_48_melfcc_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_48_melfcc_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_48_melfcc_eval" };
     EvaluateFeatures fEval_48_mfcc = createFeatureEvaluator(args_48_mfcc);
 
 
     // 16kHz features:
 
     // Raw
-    String[] args_16_raw = { "test_recorded/clio_2mic_180s.txt_16_raw_train",
-        "test_recorded/gabor_2mic_180s.txt_16_raw_train", "test_recorded/joseph_2mic_180s.txt_16_raw_train",
-        "test_recorded/patrick_2mic_180s.txt_16_raw_train", "test_recorded/clio_2mic_180s.txt_16_raw_eval",
-        "test_recorded/gabor_2mic_180s.txt_16_raw_eval", "test_recorded/joseph_2mic_180s.txt_16_raw_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_raw_eval" };
+    String[] args_16_raw = { "test_data/test_recorded/clio_2mic_180s.txt_16_raw_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_raw_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_raw_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_raw_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_raw_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_raw_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_raw_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_raw_eval" };
     EvaluateFeatures fEval_16_raw = createFeatureEvaluator(args_16_raw);
 
     // FFTs
-    String[] args_16_fft = { "test_recorded/clio_2mic_180s.txt_16_fftmag_train",
-        "test_recorded/gabor_2mic_180s.txt_16_fftmag_train", "test_recorded/joseph_2mic_180s.txt_16_fftmag_train",
-        "test_recorded/patrick_2mic_180s.txt_16_fftmag_train", "test_recorded/clio_2mic_180s.txt_16_fftmag_eval",
-        "test_recorded/gabor_2mic_180s.txt_16_fftmag_eval", "test_recorded/joseph_2mic_180s.txt_16_fftmag_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_fftmag_eval" };
+    String[] args_16_fft = { "test_data/test_recorded/clio_2mic_180s.txt_16_fftmag_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_fftmag_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_fftmag_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_fftmag_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_fftmag_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_fftmag_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_fftmag_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_fftmag_eval" };
     EvaluateFeatures fEval_16_fft = createFeatureEvaluator(args_16_fft);
 
     // MFCC rectangular window
-    String[] args_16_mfcc_rect = { "test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_eval",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_eval",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_eval" };
+    String[] args_16_mfcc_rect = { "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_eval" };
     EvaluateFeatures fEval_16_mfcc_rect = createFeatureEvaluator(args_16_mfcc_rect);
 
     // MFCC hamming window
-    String[] args_16_mfcc_hamm = { "test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_eval",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_eval",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_eval" };
+    String[] args_16_mfcc_hamm = { "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_eval" };
     EvaluateFeatures fEval_16_mfcc_hamm = createFeatureEvaluator(args_16_mfcc_hamm);
 
     // logFFTs
-    String[] args_16_logfft = { "test_recorded/clio_2mic_180s.txt_16_fftmag_log_train",
-        "test_recorded/gabor_2mic_180s.txt_16_fftmag_log_train",
-        "test_recorded/joseph_2mic_180s.txt_16_fftmag_log_train",
-        "test_recorded/patrick_2mic_180s.txt_16_fftmag_log_train",
-        "test_recorded/clio_2mic_180s.txt_16_fftmag_log_eval", "test_recorded/gabor_2mic_180s.txt_16_fftmag_log_eval",
-        "test_recorded/joseph_2mic_180s.txt_16_fftmag_log_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_fftmag_log_eval" };
+    String[] args_16_logfft = { "test_data/test_recorded/clio_2mic_180s.txt_16_fftmag_log_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_fftmag_log_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_fftmag_log_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_fftmag_log_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_fftmag_log_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_fftmag_log_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_fftmag_log_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_fftmag_log_eval" };
     EvaluateFeatures fEval_16_logfft = createFeatureEvaluator(args_16_logfft);
 
 
@@ -142,8 +152,8 @@ public class Test4Speaker_4x4_allfeatures {
         .append("# of Training steps | 48_fft | 48_mfcc | 16_raw | 16_fft | 16_mfcc_rect | 16_mfcc_hamm | 16_logfft | \n\n");
     for (int n : logarithmicScale) {
       // Create random chosen sample arrays for iteration:
-      chosenPersons = Arrays.randIntArray(n, 0, 4);
-      chosenSamples = Arrays.randIntArray(n, 0, 527);
+      chosenPersons = CDArrays.randIntArray(n, 0, 4);
+      chosenSamples = CDArrays.randIntArray(n, 0, 527);
 
       // Train all FeatureEvaluatos with the same chosenPersons and
       // chosenSamples:
@@ -231,7 +241,8 @@ public class Test4Speaker_4x4_allfeatures {
 
     // Create new Class instance with that data and the percentage of the data
     // to be used as training
-    EvaluateFeatures featureEvaluator = new EvaluateFeatures(realTraining, realEvaluation, 0.0, 0.1, 0.0, 5, 5);
+    EvaluateFeatures featureEvaluator = new EvaluateFeatures(realTraining, realEvaluation, 0.0, 0.1, 0.0, 5, 5, false,
+                                                             true, 4);
     return featureEvaluator;
   }
 

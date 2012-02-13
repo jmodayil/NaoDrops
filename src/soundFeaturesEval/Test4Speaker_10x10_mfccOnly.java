@@ -17,7 +17,7 @@ public class Test4Speaker_10x10_mfccOnly {
    */
   public static void main(String[] args) throws IOException {
 
-    FileWriter logfile = new FileWriter("Test4Speaker_8x8_dependent_mfccOnly.txt");
+    FileWriter logfile = new FileWriter("Test4Speaker_10x10_dependent_mfccOnly.txt");
 
     // Carry out some 4 person Feature evaluation:
     // Clio, Gabor, Joseph, Patrick:
@@ -27,36 +27,39 @@ public class Test4Speaker_10x10_mfccOnly {
     // 48kHz features:
 
     // MFCCs
-    String[] args_48_mfcc = { "test_recorded/clio_2mic_180s.txt_48_melfcc_train",
-        "test_recorded/gabor_2mic_180s.txt_48_melfcc_train", "test_recorded/joseph_2mic_180s.txt_48_melfcc_train",
-        "test_recorded/patrick_2mic_180s.txt_48_melfcc_train", "test_recorded/clio_2mic_180s.txt_48_melfcc_eval",
-        "test_recorded/gabor_2mic_180s.txt_48_melfcc_eval", "test_recorded/joseph_2mic_180s.txt_48_melfcc_eval",
-        "test_recorded/patrick_2mic_180s.txt_48_melfcc_eval" };
+    String[] args_48_mfcc = { "test_data/test_recorded/clio_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_48_melfcc_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_48_melfcc_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_48_melfcc_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_48_melfcc_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_48_melfcc_eval" };
     EvaluateFeatures fEval_48_mfcc = createFeatureEvaluator(args_48_mfcc);
 
 
     // 16kHz features:
 
     // MFCC rectangular window
-    String[] args_16_mfcc_rect = { "test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_train",
-        "test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_eval",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_eval",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_eval" };
+    String[] args_16_mfcc_rect = { "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_RE0_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_RE0_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_RE0_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_RE0_eval" };
     EvaluateFeatures fEval_16_mfcc_rect = createFeatureEvaluator(args_16_mfcc_rect);
 
     // MFCC hamming window
-    String[] args_16_mfcc_hamm = { "test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_train",
-        "test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_eval",
-        "test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_eval",
-        "test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_eval",
-        "test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_eval" };
+    String[] args_16_mfcc_hamm = { "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_train",
+        "test_data/test_recorded/clio_2mic_180s.txt_16_melfcc_new_ME0_eval",
+        "test_data/test_recorded/gabor_2mic_180s.txt_16_melfcc_new_ME0_eval",
+        "test_data/test_recorded/joseph_2mic_180s.txt_16_melfcc_new_ME0_eval",
+        "test_data/test_recorded/patrick_2mic_180s.txt_16_melfcc_new_ME0_eval" };
     EvaluateFeatures fEval_16_mfcc_hamm = createFeatureEvaluator(args_16_mfcc_hamm);
 
 
@@ -91,8 +94,8 @@ public class Test4Speaker_10x10_mfccOnly {
     logfile.append("# of Training steps | 48_mfcc | 16_mfcc_rect | 16_mfcc_hamm | \n\n");
     for (int n : logarithmicScale) {
       // Create random chosen sample arrays for iteration:
-      chosenPersons = Arrays.randIntArray(n, 0, 4);
-      chosenSamples = Arrays.randIntArray(n, 0, 527);
+      chosenPersons = CDArrays.randIntArray(n, 0, 4);
+      chosenSamples = CDArrays.randIntArray(n, 0, 527);
 
       // Train all FeatureEvaluatos with the same chosenPersons and
       // chosenSamples:
@@ -174,7 +177,8 @@ public class Test4Speaker_10x10_mfccOnly {
 
     // Create new Class instance with that data and the percentage of the data
     // to be used as training
-    EvaluateFeatures featureEvaluator = new EvaluateFeatures(realTraining, realEvaluation, 0.0, 0.1, 0.0, 2, 2);
+    EvaluateFeatures featureEvaluator = new EvaluateFeatures(realTraining, realEvaluation, 0.0, 0.1, 0.0, 10, 10, true,
+                                                             true, 4);
     return featureEvaluator;
   }
 

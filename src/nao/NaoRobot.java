@@ -46,7 +46,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   // numSensors=67
   final static private DropData[] observationDescriptor = {
       new DropArray(new DropFloat(""), "sensors", -1, sensorNames),
-      new DropArray(new DropFloat(""), "soundFeatures", 8192 * 4), new DropNaoImage("image", 320, 240) };
+      new DropArray(new DropFloat(""), "soundFeatures", 2731 * 1), new DropNaoImage("image", 320, 240) };
 
   private static final Drop sensorDrop = new Drop("NaoState", observationDescriptor);
   private final NaoConnection naoConnection;
@@ -57,7 +57,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
   private YUVProvider yuv;
 
   @Monitor
-  private CenterImage centerImage;
+  private SubImages subImages;
 
   private int bufferSize;
 
@@ -65,18 +65,12 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
 
   public NaoRobot() {
-    this(new NaoConnection("localhost", NaoControlPort, sensorDrop)); // CD: is
-                                                                      // NaoConnection
-                                                                      // of type
-                                                                      // ObervationReceiver?
-                                                                      // -->
-                                                                      // yes,
-                                                                      // descendant!
+    this(new NaoConnection("192.168.0.4", NaoControlPort, sensorDrop));
     bufferSize = 320 * 240 * 2;
     argbBuffer = new LiteByteBuffer(bufferSize);
 
     yuv = new YUVProvider(320, 240);
-    centerImage = new CenterImage(yuv);
+    subImages = new SubImages(yuv);
   }
 
   public NaoRobot(ObservationReceiver receiver) {
@@ -107,15 +101,11 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
     DropNaoImage imageDataDrop = (DropNaoImage) sensorDrop.drop("image");
     imageDataDrop.extractImageData(lastObs.rawData(), argbBuffer.array());
     yuv.stash(argbBuffer.array());
-    centerImage.update();
+    subImages.update();
   }
 
-  public double getMotion() {
-    return centerImage.getMotion();
-  }
-
-  public double getLuminance() {
-    return centerImage.getLuminance();
+  public double[] getCameraMotion() {
+    return subImages.getCameraMotion();
   }
 
   public void sendAction(NaoAction action) {
@@ -187,6 +177,10 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
      * a_t.actions[actionIndex]; } }); }
      */
 
+  }
+
+  public void updateShowCurrentImage(double currentImage) {
+    subImages.updateShowCurrentImage(currentImage);
   }
 
   @Override
