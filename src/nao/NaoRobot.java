@@ -41,9 +41,11 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
       "RHand-Touch-Left", "RHand-Touch-Right", "RShoulderPitch-ElectricCurrent", "RShoulderPitch-Position",
       "RShoulderPitch-Temperature", "RShoulderRoll-ElectricCurrent", "RShoulderRoll-Position",
       "RShoulderRoll-Temperature", "RWristYaw-ElectricCurrent", "RWristYaw-Position", "RWristYaw-Temperature",
-      "US-Left", "US-Right", "US" };
+      "US-Left", "US-Right", "US", "NbOfNaoMarks", "mark0AlphaAngle", "mark0BetaAngle", "mark0ID", "mark1AlphaAngle",
+      "mark1BetaAngle", "mark1ID", "mark2AlphaAngle", "mark2BetaAngle", "mark2ID", "mark3AlphaAngle", "mark3BetaAngle",
+      "mark3ID", "mark4AlphaAngle", "mark4BetaAngle", "mark4ID" };
 
-  // numSensors=67
+  // numSensors=67+1+3*5
   final static private DropData[] observationDescriptor = {
       new DropArray(new DropFloat(""), "sensors", -1, sensorNames),
       new DropArray(new DropFloat(""), "soundFeatures", 2731 * 1), new DropNaoImage("image", 320, 240) };
@@ -65,7 +67,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
 
   public NaoRobot() {
-    this(new NaoConnection("192.168.0.4", NaoControlPort, sensorDrop));
+    this(new NaoConnection("127.0.0.1", NaoControlPort, sensorDrop));
     bufferSize = 320 * 240 * 2;
     argbBuffer = new LiteByteBuffer(bufferSize);
 

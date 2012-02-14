@@ -39,7 +39,7 @@ public class RecordSoundDataFromNao {
     steps = (int) (seconds * 16000 / 2731.0);
     System.out.println("Total Steps: " + steps);
     obsArray = robot.waitNewObs();
-    nbOfFeatures = obsArray.length - 67;
+    nbOfFeatures = obsArray.length - 83;
     features = new double[steps][nbOfFeatures];
     System.out.println("There are " + nbOfFeatures + " Features per step!");
 
@@ -58,7 +58,7 @@ public class RecordSoundDataFromNao {
       this.waitNewSound();
       // Save the sound features to the double array:
       for (int n = 0; n < nbOfFeatures; n++) {
-        out.write(obsArray[67 + n] + "; ");
+        out.write(obsArray[83 + n] + "; ");
       }
       out.write("\n");
       System.out.println("Current Step: " + step);

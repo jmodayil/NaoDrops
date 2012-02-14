@@ -58,9 +58,9 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
     obsArray = robot.waitNewObs();
     // Copy the sound observations to the soundMagnitudes vectors:
     for (int n = 0; n < 1024; n++) {
-      soundMagnitudes0.setEntry(n, obsArray[67 + n]);
-      soundMagnitudes1.setEntry(n, obsArray[67 + n + 1024]);
-      soundMagnitudes2.setEntry(n, obsArray[67 + n + 2 * 1024]);
+      soundMagnitudes0.setEntry(n, obsArray[83 + n]);
+      soundMagnitudes1.setEntry(n, obsArray[83 + n + 1024]);
+      soundMagnitudes2.setEntry(n, obsArray[83 + n + 2 * 1024]);
     }
     soundMagnitudes0.mapMultiplyToSelf(0.00001);
     soundMagnitudes1.mapMultiplyToSelf(0.00001);

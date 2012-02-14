@@ -113,7 +113,7 @@ public class ObamaMerkelProblem {
 
 
     // Calculate the MFCCs:
-    frame = ArrayUtils.subarray(obsArray, 67, obsArray.length);
+    frame = ArrayUtils.subarray(obsArray, 83, obsArray.length);
     // System.out.println("Length of Frame: " + frame.length);
     mfccs = mfccProc.getMeanMfccVector(frame);
     // MFCC Calculation Done.
