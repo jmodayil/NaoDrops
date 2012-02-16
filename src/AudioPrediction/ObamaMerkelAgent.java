@@ -3,6 +3,7 @@ package AudioPrediction;
 import java.util.Random;
 
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
+import rltoys.algorithms.learning.control.acting.Greedy;
 import rltoys.algorithms.learning.control.sarsa.Sarsa;
 import rltoys.algorithms.learning.control.sarsa.SarsaControl;
 import rltoys.algorithms.representations.acting.Policy;
@@ -20,9 +21,9 @@ public class ObamaMerkelAgent {
   private final TileCodersNoHashing tileCoders;
   private final TabularAction toStateAction;
   private final Sarsa learning;
-  private final SarsaControl control;
+  private SarsaControl control;
   private final double epsilon;
-  private final Policy acting;
+  private Policy acting;
   private final Action[] possibleActions;
   double alpha, gamma, lambda;
 
@@ -30,9 +31,14 @@ public class ObamaMerkelAgent {
   public ObamaMerkelAgent(Range[] obsRanges, Action[] possibleActions) {
     // Initialize tilecoder
     this.possibleActions = possibleActions;
+    int[] camAndActionIndexes = { 0, 1 };
     tileCoders = new TileCodersNoHashing(obsRanges);
-    tileCoders.addIndependentTilings(4, 4);
-    tileCoders.includeActiveFeature();
+    tileCoders.addTileCoder(camAndActionIndexes, 4, 1);
+    // for (int n = 2; n < 16; n++) {
+    // int[] currentIndex = { n };
+    // tileCoders.addTileCoder(currentIndex, 4, 4);
+    // }
+    // tileCoders.includeActiveFeature();
 
     // Associate actions and states...
     toStateAction = new TabularAction(possibleActions, tileCoders.vectorNorm(), tileCoders.vectorSize());
@@ -85,6 +91,13 @@ public class ObamaMerkelAgent {
       probe.setEntry(n, 0);
     }
 
+
+  }
+
+  public void greedify() {
+    acting = new Greedy(learning, possibleActions, toStateAction);
+    control = new SarsaControl(acting, toStateAction, learning);
+    // TODO Auto-generated method stub
 
   }
 }

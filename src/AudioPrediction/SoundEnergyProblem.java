@@ -94,9 +94,9 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
     }
 
     if (reward < 0)
-      leds = NaoAction.setFaceLeds(2);
+      leds = NaoAction.setFaceLeds("red");
     else
-      leds = NaoAction.setFaceLeds(1);
+      leds = NaoAction.setFaceLeds("green");
 
 
     // Set LEDs according to the action array...
@@ -141,5 +141,17 @@ public class SoundEnergyProblem implements ProblemBounded, ProblemDiscreteAction
   @Override
   public Legend legend() {
     return legend;
+  }
+
+  @Override
+  public TRStep lastStep() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public TRStep endEpisode() {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

@@ -23,9 +23,9 @@ public class ObamaMerkelProblem {
   protected static final ActionArray LR = new ActionArray(3.0);
 
 
-  protected static final Action[] Actions = { UL, UR, LL, LR };
+  protected static final Action[] Actions = { UL, UR, LL }; //
 
-  int nbOfObs = 1 + 14 + 1; //
+  int nbOfObs = 1 + 1; //
 
   // Robot
   private double[] leds = new double[83];
@@ -98,50 +98,59 @@ public class ObamaMerkelProblem {
     cameraMotion = robot.getCameraMotion();
 
     calculateReward();
+    leds = leds();
 
-
-    a_t = a_tp1;
 
     generateOutputObsVector();
+
+    a_t = a_tp1;
 
   }
 
   private void generateOutputObsVector() throws IOException {
     // Output the new observations:
     // obsVector.setEntry(0, headPositionRange.bound(action.actions[0]));
-    obsVector.setEntry(0, cameraMotionRange.bound(cameraMotion[(int) a_tp1]) - 0.00001);
+    double cam;
+    if (cameraMotion[(int) a_tp1] > 2.5) {
+      cam = 1;
+    } else {
+      cam = 0;
+    }
+    obsVector.setEntry(0, cam);
 
+    obsVector.setEntry(1, a_tp1);
 
     // Calculate the MFCCs:
     frame = ArrayUtils.subarray(obsArray, 83, obsArray.length);
     // System.out.println("Length of Frame: " + frame.length);
     mfccs = mfccProc.getMeanMfccVector(frame);
     // MFCC Calculation Done.
-    for (int n = 1; n < 15; n++) {
-      obsVector.setEntry(n, soundFeatureRange[n - 1].bound(mfccs[n - 1]) - 0.00001);
+    for (int n = 0; n < 14; n++) {
+      // obsVector.setEntry(n + 2, soundFeatureRange[n].bound(mfccs[n]) -
+      // 0.00001);
     }
-    obsVector.setEntry(15, a_t);
+
   }
 
   private void calculateReward() {
     if (cameraMotion[(int) a_tp1] > 2.50) {
       reward = 1.0;
     } else {
-      reward = 0.0;
+      reward = -1.0;
     }
-    if (a_t != a_tp1) {
-      reward = -0.5;
-    }
+    // if (a_t != a_tp1) {
+    // reward = -0.5;
+    // }
   }
 
   private double[] leds() {
     // Light LEDs of Nao according to reward:
     if (reward == 1.0) {
-      leds = NaoAction.setFaceLeds(2);
+      leds = NaoAction.setFaceLeds("green");
     } else if (reward == 0.0) {
-      leds = NaoAction.setFaceLeds(1);
+      leds = NaoAction.setFaceLeds("blue");
     } else {
-      leds = NaoAction.setFaceLeds(0);
+      leds = NaoAction.setFaceLeds("red");
     }
     return leds;
   }
@@ -156,7 +165,7 @@ public class ObamaMerkelProblem {
 
   public Range[] getObservationRanges() {
     soundFeatureRange = new Range[14];
-    cameraMotionRange = new Range(0.0, 6.0);
+    cameraMotionRange = new Range(-0.01, 1.01);
     // headPositionRange = new Range(0.39, 0.61);
     actionRange = new Range(-0.01, 3.01);
 
@@ -179,11 +188,12 @@ public class ObamaMerkelProblem {
 
     // outRanges[0] = headPositionRange;
     outRanges[0] = cameraMotionRange;
-    for (int n = 1; n < 15; n++) {
-      outRanges[n] = soundFeatureRange[n - 1];
-    }
+    outRanges[1] = actionRange;
+    // for (int n = 0; n < 14; n++) {
+    // outRanges[n + 2] = soundFeatureRange[n];
+    // }
     System.out.println("Length of outRanges: " + outRanges.length);
-    outRanges[15] = actionRange;
+
     return outRanges;
   }
 

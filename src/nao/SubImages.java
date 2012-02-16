@@ -25,6 +25,15 @@ public class SubImages implements zephyr.plugin.core.api.viewable.ImageProvider 
   @Monitor
   MotionMeasure[] motionMeasures = new MotionMeasure[4];
 
+  @Monitor
+  int binaryMotion0;
+  @Monitor
+  int binaryMotion1;
+  @Monitor
+  int binaryMotion2;
+  @Monitor
+  int binaryMotion3;
+
 
   public SubImages(YUVProvider bigImage) {
     this.bigImage = bigImage;
@@ -44,6 +53,37 @@ public class SubImages implements zephyr.plugin.core.api.viewable.ImageProvider 
     for (int n = 0; n < 4; n++) {
       smallIplImages[n] = IplImage.createFrom(smallImages[n]);
       motionValues[n] = motionMeasures[n].update(smallIplImages[n]);
+      if (motionValues[n] > 2.5) {
+        switch (n) {
+        case 0:
+          binaryMotion0 = 1;
+          break;
+        case 1:
+          binaryMotion1 = 1;
+          break;
+        case 2:
+          binaryMotion2 = 1;
+          break;
+        case 3:
+          binaryMotion3 = 1;
+          break;
+        }
+      } else {
+        switch (n) {
+        case 0:
+          binaryMotion0 = 0;
+          break;
+        case 1:
+          binaryMotion1 = 0;
+          break;
+        case 2:
+          binaryMotion2 = 0;
+          break;
+        case 3:
+          binaryMotion3 = 0;
+          break;
+        }
+      }
     }
   }
 

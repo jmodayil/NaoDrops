@@ -1,1 +1,5 @@
 bin
+.classpath
+.settings/
+META-INF/
+plugin.xml

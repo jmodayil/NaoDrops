@@ -4,9 +4,10 @@ package AudioPrediction;
 import java.io.IOException;
 import java.util.Arrays;
 
+import nao.CDArrays;
+
 import org.apache.commons.lang3.ArrayUtils;
 
-import soundFeaturesEval.CDArrays;
 
 import comirva.audio.util.MFCC;
 

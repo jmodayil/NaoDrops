@@ -60,10 +60,11 @@ public class AudioPredictionZephyr implements Runnable {
   @Override
   public void run() {
     System.out.println("Calling the run() method of AudioPredictionZephyr class");
-
+    int step = 0;
     // run the problem:
     while (!this.robot.isClosed() && !clock.isTerminated()) {
       clock.tick(); // CD: observes all variables for zephyr plot function
+      step++;
       try {
         problem.update(a_tp1);
       } catch (IllegalArgumentException e) {
@@ -78,9 +79,16 @@ public class AudioPredictionZephyr implements Runnable {
       o_tp1 = problem.getObs();
 
       BinaryVector x_tp1 = agent.project(o_tp1.accessData());
+      // INSPECT!
+      // agent.inspect(x_tp1);
+      // INSPECT END!
       a_tp1 = (ActionArray) agent.step(x_t, a_t, x_tp1, r_tp1);
       robot.updateShowCurrentImage(a_tp1.actions[0]);
       x_t = x_tp1;
+      if (step > 1700) {
+        System.out.println("CHANGE POLICY TO GREEDY POLICY!");
+        agent.greedify();
+      }
     }
     // Release the robot's stiffness:
     System.out.println("Release the robot's stiffness:");

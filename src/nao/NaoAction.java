@@ -159,11 +159,23 @@ public class NaoAction extends ActionArray {
     return new Drop("NaoC", actionDescriptor);
   }
 
-  public static double[] setFaceLeds(int color) {
+  public static double[] setFaceLeds(String color) {
     // Set to blue if color = 0, green if color = 1, red if color = 2
     // sorry for that crappy programming!
+    int colorVar = 0;
     double[] leds = new double[83];
-    switch (color) {
+
+    if (color.compareToIgnoreCase("red") == 0) {
+      colorVar = 2;
+    } else if (color.compareToIgnoreCase("blue") == 0) {
+      colorVar = 0;
+    } else if (color.compareToIgnoreCase("green") == 0) {
+      colorVar = 1;
+    } else {
+      leds = null;
+    }
+
+    switch (colorVar) {
     case 0:
       for (int n = 23; n < 39; n++)
         leds[n] = 1.0;
