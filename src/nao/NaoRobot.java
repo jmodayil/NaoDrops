@@ -1,5 +1,6 @@
 package nao;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import rlpark.plugin.robot.RobotEnvironment;
@@ -67,7 +68,7 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
 
   public NaoRobot() {
-    this(new NaoConnection("127.0.0.1", NaoControlPort, sensorDrop));
+    this(new NaoConnection("192.168.0.4", NaoControlPort, sensorDrop));
     bufferSize = 320 * 240 * 2;
     argbBuffer = new LiteByteBuffer(bufferSize);
 
@@ -108,6 +109,10 @@ public class NaoRobot extends RobotEnvironment implements MonitorContainer {
 
   public double[] getCameraMotion() {
     return subImages.getCameraMotion();
+  }
+  
+  public BufferedImage getImage() {
+	  return yuv.image();
   }
 
   public void sendAction(NaoAction action) {

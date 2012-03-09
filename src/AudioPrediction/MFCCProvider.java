@@ -14,7 +14,6 @@ import comirva.audio.util.MFCC;
 public class MFCCProvider {
 
   private MFCC mfccGenerator = null;
-  private final int windowSize;
   private final int hopSize;
   private final boolean performHighPass;
   private final boolean includeSignalEnergy;
@@ -27,7 +26,6 @@ public class MFCCProvider {
 
   public MFCCProvider(float fs, int windowSize, int nc, boolean useFirst, double minFreq, double maxFreq,
       int numberFilters, boolean performHighPass, boolean includeSignalEnergy) {
-    this.windowSize = windowSize;
     this.hopSize = windowSize / 2;
     this.performHighPass = performHighPass;
     this.includeSignalEnergy = includeSignalEnergy;
@@ -65,7 +63,6 @@ public class MFCCProvider {
     int length = frame.length;
     int cutDownLength = length - (length % hopSize);
     double[] cutFrame;
-    // System.out.println("CutDownLength: " + cutDownLength);
 
     if (performHighPass) {
       cutFrame = Arrays.copyOf(performFIR(frame), cutDownLength);
@@ -79,11 +76,12 @@ public class MFCCProvider {
     double[][] mfccs = this.processTimeFrame(frame);
     double[] meanMfccs = new double[mfccs[0].length];
     for (int m = 0; m < mfccs[0].length; m++) {
-      for (int n = 0; n < mfccs.length; n++) {
+      for (int n = 1; n < mfccs.length-1; n++) {
         meanMfccs[m] += mfccs[n][m];
       }
-      meanMfccs[m] /= mfccs.length;
+      meanMfccs[m] /= (mfccs.length-2.0);
     }
+//    System.out.println("Number of MFCC Frames: " + mfccs.length);
     if (includeSignalEnergy) {
       return ArrayUtils.add(meanMfccs, 0, Math.log(CDArrays.energy(frame)));
     }

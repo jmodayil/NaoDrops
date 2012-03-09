@@ -47,17 +47,27 @@ public class YUVProvider implements zephyr.plugin.core.api.viewable.ImageProvide
     }
     // System.out.println("Stash");
   }
+  
+  public BufferedImage grayImage() {
+	    // System.out.println("imaged: " + width + " " + height);
+	    BufferedImage imForGrayImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+	    int startX = 0, startY = 0, w = width, h = height, offset = 0, scansize = width;
+	    // fill the buffer in YUV mode.
+	    imForGrayImg.setRGB(startX, startY, w, h, ARGBpixels, offset, scansize);
 
+	    BufferedImageOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+	    return op.filter(imForGrayImg, null);
+  }
   @Override
   public BufferedImage image() {
     // System.out.println("imaged: " + width + " " + height);
-    BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+    BufferedImage colorImage = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
     int startX = 0, startY = 0, w = width, h = height, offset = 0, scansize = width;
     // fill the buffer in YUV mode.
-    im.setRGB(startX, startY, w, h, ARGBpixels, offset, scansize);
-
-    BufferedImageOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-    return op.filter(im, null);
+    colorImage.setRGB(startX, startY, w, h, ARGBpixels, offset, scansize);
+    
+    return colorImage;
+//	  return null;
   }
 
 

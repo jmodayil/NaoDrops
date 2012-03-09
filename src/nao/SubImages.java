@@ -20,7 +20,7 @@ public class SubImages implements zephyr.plugin.core.api.viewable.ImageProvider 
   @Monitor
   private double luminance;
 
-  private static final int DEPTH = opencv_core.IPL_DEPTH_8U;
+  private static int DEPTH;
 
   @Monitor
   MotionMeasure[] motionMeasures = new MotionMeasure[4];
@@ -37,18 +37,20 @@ public class SubImages implements zephyr.plugin.core.api.viewable.ImageProvider 
 
   public SubImages(YUVProvider bigImage) {
     this.bigImage = bigImage;
+    DEPTH = IplImage.createFrom(bigImage.grayImage().getSubimage(10, 10, 64, 48)).depth();
+    int channels = IplImage.createFrom(bigImage.grayImage()).nChannels();
     for (int n = 0; n < 4; n++) {
-      motionMeasures[n] = new MotionMeasure(.68, 64, 48, DEPTH, 1);
+      motionMeasures[n] = new MotionMeasure(.68, 64, 48, DEPTH, channels);
     }
   }
 
   public void update() {
 
     // Update Images:
-    smallImages[0] = bigImage.image().getSubimage(10, 10, 64, 48);
-    smallImages[1] = bigImage.image().getSubimage(10, 180, 64, 48);
-    smallImages[2] = bigImage.image().getSubimage(220, 10, 64, 48);
-    smallImages[3] = bigImage.image().getSubimage(220, 180, 64, 48);
+    smallImages[0] = bigImage.grayImage().getSubimage(10, 10, 64, 48);
+    smallImages[1] = bigImage.grayImage().getSubimage(10, 180, 64, 48);
+    smallImages[2] = bigImage.grayImage().getSubimage(220, 10, 64, 48);
+    smallImages[3] = bigImage.grayImage().getSubimage(220, 180, 64, 48);
 
     for (int n = 0; n < 4; n++) {
       smallIplImages[n] = IplImage.createFrom(smallImages[n]);
@@ -96,7 +98,7 @@ public class SubImages implements zephyr.plugin.core.api.viewable.ImageProvider 
     return smallImages[currentImage];
   }
 
-  public IplImage cvImage() {
+  public IplImage cvgrayImage() {
     IplImage image = new IplImage();
     image.copyFrom(smallImages[currentImage]);
     return image;

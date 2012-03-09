@@ -2,7 +2,10 @@ package AudioPrediction;
 
 import java.io.IOException;
 
+import com.googlecode.javacv.cpp.opencv_core.IplImage;
+
 import nao.NaoRobot;
+import nao.RewardFromCardGenerator;
 import rltoys.environments.envio.actions.ActionArray;
 import rltoys.math.vector.BinaryVector;
 import rltoys.math.vector.RealVector;
@@ -62,6 +65,9 @@ public class AudioPredictionZephyr implements Runnable {
     System.out.println("Calling the run() method of AudioPredictionZephyr class");
     int step = 0;
     // run the problem:
+    
+    RewardFromCardGenerator rewardFromCard = new RewardFromCardGenerator();
+    
     while (!this.robot.isClosed() && !clock.isTerminated()) {
       clock.tick(); // CD: observes all variables for zephyr plot function
       step++;
@@ -85,10 +91,17 @@ public class AudioPredictionZephyr implements Runnable {
       a_tp1 = (ActionArray) agent.step(x_t, a_t, x_tp1, r_tp1);
       robot.updateShowCurrentImage(a_tp1.actions[0]);
       x_t = x_tp1;
+      System.out.println("Step: " + step);
       if (step > 1700) {
         System.out.println("CHANGE POLICY TO GREEDY POLICY!");
         agent.greedify();
       }
+      
+      
+      //Check the IplImage Processing stuff
+      rewardFromCard.getRewardForBlueTracking(IplImage.createFrom(robot.getImage()));
+      
+      
     }
     // Release the robot's stiffness:
     System.out.println("Release the robot's stiffness:");
