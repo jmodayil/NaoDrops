@@ -99,7 +99,7 @@ public class AudioPredictionZephyr implements Runnable {
       
       
       //Check the IplImage Processing stuff
-      rewardFromCard.getRewardForBlueTracking(IplImage.createFrom(robot.getImage()));
+      rewardFromCard.getRewardForBlueTracking(robot.getImage());
       
       
     }

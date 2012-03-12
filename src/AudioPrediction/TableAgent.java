@@ -8,8 +8,10 @@ import java.io.ObjectOutputStream;
 import java.util.Random;
 
 import rltoys.algorithms.learning.control.AverageReward;
+import rltoys.algorithms.learning.control.acting.BaselinePolicy;
 import rltoys.algorithms.learning.control.acting.EpsilonGreedy;
 import rltoys.algorithms.learning.control.acting.Greedy;
+import rltoys.algorithms.learning.control.acting.SoftMax;
 import rltoys.algorithms.learning.control.sarsa.SarsaControl;
 import rltoys.algorithms.representations.acting.Policy;
 import rltoys.algorithms.representations.actions.Action;
@@ -43,9 +45,8 @@ public class TableAgent {
     // Initialize Sarsa Algorithm:
     // learning = new Sarsa(alpha, gamma, lambda, toStateAction.vectorSize());
     learning = new SarsaInitialized(alpha, gamma, lambda, toStateAction.vectorSize());
-
-    // Use epsilon-greedy policy:
-    acting = new EpsilonGreedy(new Random(0), possibleActions, toStateAction, learning, epsilon);
+    
+    this.initializePolicy();
   }
   
   public TableAgent(Range[] obsRanges, Action[] possibleActions, PVector initialTheta) {
@@ -57,11 +58,12 @@ public class TableAgent {
 	learning = new SarsaInitialized(alpha, gamma, lambda, toStateAction.vectorSize(),initialTheta);
 	
 	// Use epsilon-greedy policy:
-	acting = new EpsilonGreedy(new Random(0), possibleActions, toStateAction, learning, epsilon);
-	
+	this.initializePolicy();
 	  }
   
-  public TableAgent(Range[] obsRanges, Action[] possibleActions, String sarsaLearning) throws IOException, ClassNotFoundException {
+
+
+public TableAgent(Range[] obsRanges, Action[] possibleActions, String sarsaLearning) throws IOException, ClassNotFoundException {
 	  this.initialize(obsRanges, possibleActions);
 	  
 	    // Copy the Sarsa Learning from existing file:
@@ -70,19 +72,19 @@ public class TableAgent {
 	    learning = (SarsaInitialized) in.readObject();
 	    in.close();
 	    System.out.println("Sucessfully loaded sarsa learner from file...");
-	    // Use epsilon-greedy policy:
-	    acting = new EpsilonGreedy(new Random(0), possibleActions, toStateAction, learning, epsilon);
+	    
+	    this.initializePolicy();
 }
   
   private void initialize(Range[] obsRanges, Action[] possibleActions) {
     this.possibleActions = possibleActions;
-    this.rAverage = new AverageRewardInitialized(.004, .7);
+    this.rAverage = new AverageRewardInitialized(.002, 0.6157269410587979);
     
     
     tileCoders = new TileCodersNoHashing(obsRanges);
     int[] jointlyIndexes = {0, 1 , 2};
-    tileCoders.addTileCoder(jointlyIndexes, 3, 1);
-    System.out.println("before: " + tileCoders.vectorSize());
+    System.out.println("Actions Length: " + this.possibleActions.length);
+    tileCoders.addTileCoder(jointlyIndexes, this.possibleActions.length, 1);
     int[] index = new int[1];
     for (int n = 3; n < 17; n++) {
     	index[0] = n;
@@ -96,27 +98,28 @@ public class TableAgent {
         + tileCoders.vectorNorm());
     System.out.println("VectorSize of Tilecoder: " + tileCoders.vectorSize());
     
-    alpha = .1 / tileCoders.vectorNorm();
+//    alpha = .1 / tileCoders.vectorNorm();
 //    alpha = 0.0;
-//    alpha = .1;
+    alpha = .1;
     gamma = 1.0;
-    lambda = 0.95;
-    epsilon = 0.3;
+    lambda = 0.4;
+    epsilon = 0.25;
 }
 
+  private void initializePolicy() {
+//		acting = new EpsilonGreedy(new Random(0), possibleActions, toStateAction, learning, epsilon);
+//    acting = new BaselinePolicy(possibleActions, toStateAction, AudioPredictionZephyr_RealEnv.getInitializedThetaVector(4, 14));
+	acting = new SoftMax(new Random(), learning, possibleActions, toStateAction, 0.25);
+}
   public Action step(RealVector x_t, Action a_t, RealVector x_tp1, double r_tp1, double motion) {
 	  Action a_tp1;
 	  if (x_t == null)
         xa_t = null;
-	  if (r_tp1 < 0.5 && motion < 0.5) {
+	  if (r_tp1 < 0.5 && motion < 0.5) {//
 		  a_tp1 = acting.decide(x_tp1);
-		  if (a_tp1 != ((EpsilonGreedy) acting).computeBestAction(x_tp1)) {
-//			  System.out.println("ACTUALLY EPSILONGREEDY!");
-		  }
 	  }
 	  else {
-	      a_tp1 = ((EpsilonGreedy) acting).computeBestAction(x_tp1);
-//	      System.out.println("Greedy");
+	      a_tp1 = acting.decide(x_tp1);
 	  }
 	  double curAv = rAverage.average(r_tp1);
       RealVector xa_tp1 = toStateAction.stateAction(x_tp1, a_tp1);
@@ -154,7 +157,7 @@ public class TableAgent {
 //	  testObs.setEntry(1, 1);
 //	  testObs.setEntry(2, 0);
 //	  System.out.println("Values for the three actions: " + learning.predict(toStateAction.stateAction(this.project(testObs.accessData()), possibleActions[0])) + "  " + learning.predict(toStateAction.stateAction(this.project(testObs.accessData()), possibleActions[1])) + "  " + learning.predict(toStateAction.stateAction(this.project(testObs.accessData()), possibleActions[2])));
-	  PrintActionValueTable.printTable(learning, toStateAction, tileCoders, possibleActions, x_tp1);
+	  PrintActionValueTable.printTable(learning, toStateAction, tileCoders, possibleActions, x_tp1, 4, 14);
   }
 
 

@@ -110,8 +110,8 @@ public class TrackBlueCard {
       robot.waitNewObs();
       
 
-      r_tp1 = rewardGen.getRewardForBlueTracking(IplImage.createFrom(robot.getImage()));
-      xy = rewardGen.getXYcoordinates(IplImage.createFrom(robot.getImage()));
+      r_tp1 = rewardGen.getRewardForBlueTracking(robot.getImage());
+      xy = rewardGen.getXYcoordinates(robot.getImage());
       o_tp1.setEntry(0, ranges[0].bound(xy[0]) - 0.001);
       o_tp1.setEntry(1, ranges[1].bound(xy[1]) - 0.001);
 

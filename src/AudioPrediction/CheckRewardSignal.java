@@ -52,7 +52,7 @@ public class CheckRewardSignal {
       obsArray = robot.waitNewObs();
       
       //Get Reward
-      reward = rewardGen.getReward(IplImage.createFrom(robot.getImage()));
+      reward = rewardGen.getReward(robot.getImage());
       reward = reward > 0.99 ? 1 : -1;
       
       //Calculate Motion:

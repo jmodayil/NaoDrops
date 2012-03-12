@@ -1,5 +1,7 @@
 package nao;
 
+import java.awt.image.BufferedImage;
+
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.*;
 import static com.googlecode.javacv.cpp.opencv_core.*;
@@ -13,11 +15,14 @@ public class RewardFromCardGenerator {
 	int count = 0;
 	double area = 0.1;
 	
-	public IplImage getThresholdImage(IplImage img) {
+	public IplImage getThresholdImage(BufferedImage img) {
 	    // Convert the image into an HSV image
 		//canvas.showImage(img);
-	    imgHSV = IplImage.create(img.cvSize(), img.depth(), img.nChannels());
-	    cvCvtColor(img, imgHSV, CV_BGR2HSV);
+		BufferedImage subImage;
+		subImage = img.getSubimage(130, 0, 60, 240);
+		IplImage subIpl = IplImage.createFrom(subImage);
+	    imgHSV = IplImage.create(subIpl.cvSize(), subIpl.depth(), subIpl.nChannels());
+	    cvCvtColor(subIpl, imgHSV, CV_BGR2HSV);
 	    
 	    imgThreshed = IplImage.create(imgHSV.cvSize(), imgHSV.depth(), 1);
 	    
@@ -26,26 +31,23 @@ public class RewardFromCardGenerator {
 		return imgThreshed;
 	}
 	
-	public double getReward(IplImage img) {
+	public double getReward(BufferedImage img) {
 		double value = 0;
 		double reward = 0;
 		getThresholdImage(img);
 		value = cvAvg(imgThreshed, null).getVal(0);
-		
-		if (value < 1.0) {
+		if (value < 1.5) {
 			reward = -1.0;
-		}
-		else if (value < 5.0) {
-			reward = (value - 1.0)*2/(4.0) - 1;
 		}
 		else {
 			reward = 1.0;
 		}
+		System.out.println("BlueCard Value: " + value);
 //		System.out.println("reward: " + reward);
 		return reward;
 	}
 	
-	public double[] getXYcoordinates(IplImage img) {
+	public double[] getXYcoordinates(BufferedImage img) {
         // Calculate the moments to estimate the position of the ball
         CvMoments moments = new CvMoments();
         double[] xy = new double[2];
@@ -69,7 +71,7 @@ public class RewardFromCardGenerator {
         return xy;
 	}
 	
-	public double getRewardForBlueTracking(IplImage img) {
+	public double getRewardForBlueTracking(BufferedImage img) {
 		double[] xy = getXYcoordinates(img);
 		double distx = xy[0] - 160;
 		double disty = xy[1] - 120;

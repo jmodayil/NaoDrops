@@ -1,5 +1,6 @@
 package AudioPrediction;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,14 +22,16 @@ import zephyr.plugin.core.api.synchronization.Clock;
 @Monitor
 public class TableProblem {
   // Actions
-  protected static final ActionArray RIGHT = new ActionArray(0);
-  protected static final ActionArray CENTER = new ActionArray(1);
-  protected static final ActionArray LEFT = new ActionArray(2);
+  protected static final ActionArray A4 = new ActionArray(0);
+  protected static final ActionArray A3 = new ActionArray(1);
+  protected static final ActionArray A2 = new ActionArray(2);
+  protected static final ActionArray A1 = new ActionArray(3);
 
-  protected static final Action[] possibleActions = {RIGHT,CENTER,LEFT};
+  protected static final Action[] possibleActions = {A4,A3,A2,A1}; //,A3,A2, A1,
 //  double[] truePositions = {-0.8284019827842712,0.004560038447380066,0.8298520445823669}; // For .3 .5 .7
-  double[] truePositions = {-0.4126879572868347,0.00762803852558136,0.628898024559021};
-  double[] rawActions = {.4, .5, .65};
+//  double[] truePositions = {-0.4126879572868347,0.00762803852558136,0.628898024559021, 0.0}; -0.6182439923286438
+  double[] truePositions = {-0.40808597207069397,-0.13043196499347687,0.17176604270935059, 0.45402204990386963};
+  double[] rawActions = {.40, .47, .54, .61};
   BufferVector pastAction = new BufferVector(1,1);
 
   int nbOfObs = 1 + 1 + 1 + 14; //HeadMotion, LastAction, Reward
@@ -47,7 +50,7 @@ public class TableProblem {
 
   // Raw Observations
   double[] obsArray;
-  IplImage currentImage;
+  BufferedImage currentImage;
   // observation OUTPUT to agent:
   private final PVector obsVector = new PVector(nbOfObs);
   
@@ -60,7 +63,7 @@ public class TableProblem {
   
   //Ranges
   Range headMotionRange = new Range(-0.01,1.01);
-  Range pastActionRange = new Range(-0.01,2.01);
+  Range pastActionRange = new Range(-0.01,3.01);
   Range rewardRange = new Range(-0.01,1.01);
   Range[] soundFeatureRange = new Range[14];
   
@@ -147,7 +150,7 @@ public class TableProblem {
 		headMotion = 1;
 	}
 	pastAction.push((int) action.actions[0]);
-    currentImage = IplImage.createFrom(robot.getImage());
+    currentImage = robot.getImage();
 	
 
     calculateReward();
